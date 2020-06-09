@@ -25,6 +25,50 @@ import Card from '../components/layouts/Card'
 import MainTitle from '../components/layouts/MainTitle'
 import LoadingSwal from '../components/layouts/LoadingSwal'
 
+const NextReward = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .next-award {
+        font-size: 1.5rem;
+        animation-duration: 2s;
+        animation-name: ${props => props.theme === 'sun' ? 'highlightday' : 'highlightnight'};
+        animation-delay: 0;
+        animation-iteration-count: infinite;
+        animation-direction: forward;
+    }
+
+    /* Standard syntax */
+    @keyframes highlightday {
+        0% {
+            background-color: rgba(255, 255, 0, 0.3);
+        }
+
+        50% {
+            background-color: rgb(255, 255, 255);
+        }
+
+        100% {
+            background-color: rgba(255, 255, 0, 0.3);
+        }
+    }
+
+    @keyframes highlightnight {
+        0% {
+            background-color: rgba(255, 255, 0, 0.3);
+        }
+
+        50% {
+            background-color: rgb(75, 75, 75);
+        }
+
+        100% {
+            background-color: rgba(255, 255, 0, 0.3);
+        }
+    }
+`
+
 const Label = styled.p`
     text-align: left;
     font-weight: 500;
@@ -287,12 +331,8 @@ function ListRandomizer(props) {
         props.dispatch({
             type: 'SET_BREADCRUMB',
             data: [
-                // {
-                //     page: 'Home',
-                //     url: '/'
-                // },
                 {
-                    page: 'List Randomizer',
+                    page: 'ระบบสุ่มจับรางวัล กพ.ทบ.',
                     url: ''
                 }
             ]
@@ -586,7 +626,29 @@ function ListRandomizer(props) {
     return (
         <MainContainer className="animated fadeIn">
             <MainRow>
-                <MainTitle title="List Randomizer"/>
+                <Col xs={24}>
+                    <NextReward theme={props.theme}>
+                        <CardShield style={{ opacity: 0 }}>
+                            <Card>
+                                จำนวนรางวัลคงเหลือ: 21
+                            </Card>
+                        </CardShield>
+                        <CardShield className={firstCardClass}>
+                            <Card>
+                                <p>
+                                    รางวัลรายการถัดไป: <span className="next-award">เงินจำนวน 1000 บาท</span>
+                                </p>
+                            </Card>
+                        </CardShield>
+                        <CardShield className={firstCardClass}>
+                            <Card>
+                                จำนวนรางวัลคงเหลือ: <span className="next-award">21</span>
+                            </Card>
+                        </CardShield>
+                    </NextReward>
+                </Col>
+            </MainRow>
+            <MainRow>
                 <Col md={12} sm={24}>
                     <CardShield className={firstCardClass}>
                         <Card>
