@@ -125,7 +125,7 @@ const AwardsResult = styled.div`
         span.right {
             width: 60%;
 
-            span.last-pick-up {
+            span.first-picked-up {
                 animation-duration: 2s;
                 animation-name: ${props => props.theme === 'sun' ? 'highlight-green-day' : 'highlight-green-night'};
                 animation-delay: 0;
@@ -409,7 +409,7 @@ function ListRandomizer(props) {
                                         <p key={pickedupPersonIndex}>
                                             <span className="left">{pickedupPerson.name}</span>
                                             <span className="right">
-                                                <span className={pickedupPersonIndex+1 === awardsList.data.persons_whom_are_picked_up.length ? "last-pick-up" : ""}>{pickedupPerson.fullname}</span>
+                                                <span className={pickedupPersonIndex === 0 ? "first-picked-up" : ""}>{pickedupPerson.fullname}</span>
                                             </span>
                                         </p>
                                     )
