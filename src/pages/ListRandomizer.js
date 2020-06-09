@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
+import axios from 'axios'
 import styled from 'styled-components'
 import {
     Button,
@@ -35,8 +36,19 @@ const NextAward = styled.div`
 
     span.next-award {
         font-size: 1.5rem;
+        padding: 0 0.5rem;
         animation-duration: 2s;
         animation-name: ${props => props.theme === 'sun' ? 'highlight-yellow-day' : 'highlight-yellow-night'};
+        animation-delay: 0;
+        animation-iteration-count: infinite;
+        animation-direction: forward;
+    }
+
+    span.remain-awards {
+        font-size: 1.5rem;
+        padding: 0 0.5rem;
+        animation-duration: 2s;
+        animation-name: ${props => props.theme === 'sun' ? 'highlight-blue-day' : 'highlight-blue-night'};
         animation-delay: 0;
         animation-iteration-count: infinite;
         animation-direction: forward;
@@ -65,36 +77,28 @@ const PersonsAmountBlock = styled.div`
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
 
-    span {
-        font-size: 1.5rem;
-    }
-`
+    div {
+        height: 300px;
+        overflow: auto;
+        text-align: left;
+        margin: 0 5rem;
 
-const SuccessContent = styled.p`
-    font-size: 1.25rem;
-    font-weight: 500;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-`
-
-const SwalResultContainer = styled.div`
-    padding: ${props => props.padding || '0'};
-    border: 0;
-    color: ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.65)' : 'rgb(225, 225, 225)'};
-`
-
-const DisplayMainData = styled.div`
-    text-align: left;
-
-    .list_items_notice_container {
-        text-align: center;
-    }
-
-    .list_items_container {
         p {
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
+            margin: 0;
+
+            &.is-picked-up {
+                background-color: rgba(0, 255, 0, 0.5);
+            }
+        }
+        
+        @media (max-width: 991px) {
+            margin: 0;
+
+            p {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
     }
 `
@@ -123,14 +127,6 @@ const ButtonContainer = styled(Row)`
     ${props => props.hasmarginbottom && 'margin-bottom: 15px;'}
 `
 
-const LeftCol = styled(Col)`
-    text-align: left;
-`
-
-const RightCol = styled(Col)`
-    text-align: right;
-`
-
 const RandomizedResultContent = styled.p`
     font-size: 0.85rem;
     margin: 0;
@@ -155,42 +151,11 @@ const RandomizedResultContent = styled.p`
     }
 `
 
-const ShowProgressBar = styled.div`
-    text-align: center;
-    margin-bottom: 15px;
-
-    .ant-progress-inner {
-        transition: 0.3s;
-        ${props => props.theme !== 'sun' && 'background-color: #999999;'}
-    }
-`
-
-const TitleIcon = styled(Icon)`
-    color: ${props => props.color || '#000000'};
-    font-size: 4rem;
-    transition: 0.3s;
-`
-
-const ListItemsNotificationIcon = styled(Icon)`
-    color: ${props => props.color || '#000000'};
-`
-
 const MedalIcon = styled(Icon)`
     svg {
         max-width: 1rem;
         max-height: 1rem;
     }
-`
-
-const ClearButton = styled(Button)`
-    padding: 0;
-`
-
-const ClearResultButton = styled(Button)`
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    display: ${props => props.thisdisplay};
 `
 
 function mapStateToProps(state) {
@@ -199,23 +164,23 @@ function mapStateToProps(state) {
 
 function ListRandomizer(props) {
     const [listItems, setListItems] = useState(initialState('listItems'))
-    const [listItemsNotice, setListItemsNotice] = useState(initialState('listItemsNotice'))
     const [randomizedListItems, setRandomizedListItems] = useState(initialState('randomizedListItems'))
     const [startBtnIcon, setStartBtnIcon] = useState(initialState('startBtnIcon'))
     const [startBtnDisplay, setStartBtnDisplay] = useState(initialState('startBtnDisplay'))
-    const [clearBtnDisplay, setClearBtnDisplay] = useState(initialState('clearBtnDisplay'))
     const [percent, setPercent] = useState(initialState('percent'))
     const [startBtnDisabled, setStartBtnDisabled] = useState(initialState('startBtnDisabled'))
-    const [elementDisabled, setElementDisabled] = useState(initialState('elementDisabled'))
 
     const [firstCardClass, setFirstCardClass] = useState('hidden')
     const [secondCardClass, setSecondCardClass] = useState('hidden')
     const [thirdCardClass, setThirdCardClass] = useState('hidden')
 
+    const [personsList, setPersonsList] = useState({})
+    const [awardsList, setAwardsList] = useState({})
+
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
-        second: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
-        third: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown"
+        second: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInLeft",
+        third: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInRight"
     }
 
     useEffect(() => {
@@ -228,6 +193,8 @@ function ListRandomizer(props) {
                 }
             ]
         })
+
+        getPersonsAndAwardsList()
 
         setTimeout(() => {
             setFirstCardClass(classNames.first)
@@ -261,6 +228,36 @@ function ListRandomizer(props) {
         }
     }, [listItems])
 
+    function getPersonsAndAwardsList() {
+        // ดึกข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
+        axios.get(`${props.url}/getpersons`)
+        .then(res => {
+            const response = res.data
+            
+            if(response.code === "00200") {
+                console.log(response.data)
+                setPersonsList(response.data)
+            }
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+
+        // ดึกข้อมูล รายการรางวัลทั้งหมด
+        axios.get(`${props.url}/getawardslist`)
+        .then(res => {
+            const response = res.data
+            
+            if(response.code === "00200") {
+                console.log(response.data)
+                setAwardsList(response.data)
+            }
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+    }
+
     function initialState(stateName) {
         switch (stateName) {
             case 'currentListItem':
@@ -293,9 +290,6 @@ function ListRandomizer(props) {
             case 'startBtnDisabled':
                 return true
 
-            case 'elementDisabled':
-                return false
-
             default:
                 break
         }
@@ -303,12 +297,9 @@ function ListRandomizer(props) {
 
     function getBackToInitialState() {
         setListItems(initialState('listItems'))
-        setListItemsNotice(initialState('listItemsNotice'))
         setStartBtnIcon(initialState('startBtnIcon'))
         setStartBtnDisplay(initialState('startBtnDisplay'))
-        setClearBtnDisplay(initialState('clearBtnDisplay'))
         setStartBtnDisabled(initialState('startBtnDisabled'))
-        setElementDisabled(initialState('elementDisabled'))
     }
 
     function takeResultToInitialState() {
@@ -355,7 +346,6 @@ function ListRandomizer(props) {
     function startButtonHandleClick(time) {
         setStartBtnDisabled(initialState('startBtnDisabled'))
         setStartBtnIcon('loading')
-        setElementDisabled(true)
         setRandomizedListItems(initialState('randomizedListItems'))
         setPercent(0)
 
@@ -369,7 +359,6 @@ function ListRandomizer(props) {
     function stopProcess() {
         setStartBtnDisabled(false)
         setStartBtnIcon(initialState('startBtnIcon'))
-        setElementDisabled(initialState('elementDisabled'))
     }
 
     function goRandomize() {
@@ -437,19 +426,19 @@ function ListRandomizer(props) {
                     <NextAward theme={props.theme}>
                         <CardShield className="dummy">
                             <Card>
-                                จำนวนรางวัลคงเหลือ: 21
+                                จำนวนรางวัลคงเหลือ: {awardsList.remain}
                             </Card>
                         </CardShield>
                         <CardShield className={firstCardClass}>
                             <Card>
                                 <p className="block">
-                                    รางวัลรายการถัดไป: <span className="next-award">เงินจำนวน 1000 บาท</span>
+                                    รางวัลรายการถัดไป: <span className="next-award">{awardsList.remain > 0 && awardsList.data.awards_remain[0].name}</span>
                                 </p>
                             </Card>
                         </CardShield>
                         <CardShield className={firstCardClass}>
                             <Card>
-                                จำนวนรางวัลคงเหลือ: <span className="next-award">21</span>
+                                จำนวนรางวัลคงเหลือ: <span className="remain-awards">{awardsList.remain}</span>
                             </Card>
                         </CardShield>
                     </NextAward>
@@ -459,18 +448,23 @@ function ListRandomizer(props) {
                 <Col md={12} sm={24}>
                     <CardShield className={secondCardClass}>
                         <Card>
-                            <Label theme={props.theme}>จำนวนกำลังพลของ กพ.ทบ.</Label>
+                            <Label theme={props.theme}>จำนวนกำลังพลของ กพ.ทบ. (ทั้งหมด {personsList.max} นาย)</Label>
                             <PersonsAmountBlock>
-                                <span>
-                                    38 / 40
-                                </span>
+                                <div>
+                                    {Object.keys(personsList).length > 0 && personsList.data.map((person, personIndex) => {
+                                        return (
+                                            <p key={personIndex} className={person.is_picked_up > 0 ? "is-picked-up" : ""}>
+                                                {person.fullname}
+                                            </p>
+                                        )
+                                    })}
+                                </div>
                             </PersonsAmountBlock>
                             <ButtonContainer display={startBtnDisplay}>
                                 <Col xs={24} className="animated fadeIn">
                                     <Button
                                         onClick={() => startButtonHandleClick(1500)}
                                         size='large'
-                                        shape='round'
                                         type='primary'
                                         icon={startBtnIcon}
                                     >
@@ -484,42 +478,11 @@ function ListRandomizer(props) {
                 <Col md={12} sm={24}>
                     <CardShield className={thirdCardClass}>
                         <Card>
-                            <ClearResultButton
-                                size='small'
-                                type='ghost'
-                                icon='close'
-                                shape='circle'
-                                thisdisplay={randomizedListItems.length > 0 ? 'block' : 'none'}
-                                onClick={() => {
-                                    takeResultToInitialState()
-                                    warningMessage('The result has been cleared.')
-                                }}
-                            >
-                            </ClearResultButton>
                             <Label theme={props.theme}>ผลการจับรางวัล</Label>
                             <ListItemsNotificationText display={randomizedListItems.length === 0 ? 'block' : 'none'} theme={props.theme}>
                                 ยังไม่ทำการจับรางวัล
                             </ListItemsNotificationText>
-                            <DisplayRandomizedResultContent padding={randomizedListItems.length > 0 ? '0.5rem 0' : '0'}>
-                                {randomizedListItems.length > 0 && displayAllRandomizedListItems()}
-                                {randomizedListItems.map((item, index) => {
-                                    if(index < 3) {
-                                        return (
-                                            <RandomizedResultContent key={index} className={index === 0 && 'firstPrize'} theme={props.theme}>
-                                                <span className="orderedIcon">{renderMedalIcon(index+1)}</span>
-                                                <span>{item}</span>
-                                            </RandomizedResultContent>
-                                        )
-                                    } else {
-                                        return (
-                                            <RandomizedResultContent key={index}>
-                                                <span className="orderedNumber">{index+1})</span>
-                                                <span>{item}</span>
-                                            </RandomizedResultContent>
-                                        )
-                                    }
-                                })}
-                            </DisplayRandomizedResultContent>
+                            
                         </Card>
                     </CardShield>
                 </Col>
