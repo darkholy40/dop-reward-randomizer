@@ -169,6 +169,10 @@ const FooterTimeString = styled.span`
         border-radius: 5px;
     }
 
+    .clock {
+        margin-left: 5px;
+    }
+
     @media (max-width: 767px) {
         margin-bottom: 1rem;
     }
@@ -209,21 +213,20 @@ function Footer(props) {
     }
 
     function getLocaleString() {
-        const dayString = getDayString(props.newDate.day)
-        const time = getClock()
+        const dayString = getDayString(props.newDate.day, 'short', 'th')
 
         const year = props.newDate.year
-        const month = getMonthString(props.newDate.month)
+        const month = getMonthString(props.newDate.month, 'short', 'th')
         const day = props.newDate.date
 
-        return `${dayString}, ${month} ${day}, ${year} ${time}`
+        return `${dayString}. ${day} ${month} ${year+543}`
     }
 
     function getLongString() {
-        const longDayString = getDayString(props.newDate.day, 'long')
-        const longMonthString = getMonthString(props.newDate.month, 'long')
+        const longDayString = getDayString(props.newDate.day, 'long', 'th')
+        const longMonthString = getMonthString(props.newDate.month, 'long', 'th')
 
-        return `${longDayString}, ${longMonthString} ${props.newDate.date}, ${props.newDate.year}`
+        return `${longDayString}ที่ ${props.newDate.date} ${longMonthString} ${props.newDate.year+543}`
     }
 
     return (
@@ -243,7 +246,7 @@ function Footer(props) {
                     </div>
                 </ClockModal>
                 <FooterTimeString onClick={() => setModalClockVisible(true)} thisBorderColor={hexColorToRgbValue(colorsOfTheDay(props.newDate.day))}>
-                    <Icon type="clock-circle" theme="twoTone" twoToneColor={colorsOfTheDay(props.newDate.day)} style={{marginRight: '0.5rem'}} />{getLocaleString()}
+                    <Icon type="clock-circle" theme="twoTone" twoToneColor={colorsOfTheDay(props.newDate.day)} style={{marginRight: '0.5rem'}} />{getLocaleString()}<span className="clock">{getClock()}</span>
                 </FooterTimeString>
             </TopContainer>
             <Row>

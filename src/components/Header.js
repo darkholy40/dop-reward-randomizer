@@ -6,7 +6,7 @@ import {
     Icon,
     Modal
 } from 'antd'
-import version from './static_data/version'
+import version from '../static_data/version'
 import hexColorToRgba from './functions/hexColorToRgba'
 import MainTitle from './layouts/MainTitle'
 import SunIcon from './icons/theme/Sun'

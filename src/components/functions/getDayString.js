@@ -1,26 +1,28 @@
-function getDayString(dayValue, type) {
+import days from '../../static_data/components/functions/days'
+
+function getDayString(dayValue, type, lang) {
     if(type === 'long') {
         switch (dayValue) {
             case 0:
-                return 'Sunday'
+                return days.long[0][lang]
 
             case 1:
-                return 'Monday'
+                return days.long[1][lang]
 
             case 2:
-                return 'Tuesday'
+                return days.long[2][lang]
 
             case 3:
-                return 'Wednesday'
+                return days.long[3][lang]
 
             case 4:
-                return 'Thursday'
+                return days.long[4][lang]
 
             case 5:
-                return 'Friday'
+                return days.long[5][lang]
 
             case 6:
-                return 'Saturday'
+                return days.long[6][lang]
         
             default:
                 break
@@ -28,25 +30,25 @@ function getDayString(dayValue, type) {
     } else {
         switch (dayValue) {
             case 0:
-                return 'Sun'
+                return days.short[0][lang]
 
             case 1:
-                return 'Mon'
+                return days.short[1][lang]
 
             case 2:
-                return 'Tue'
+                return days.short[2][lang]
 
             case 3:
-                return 'Wed'
+                return days.short[3][lang]
 
             case 4:
-                return 'Thu'
+                return days.short[4][lang]
 
             case 5:
-                return 'Fri'
+                return days.short[5][lang]
 
             case 6:
-                return 'Sat'
+                return days.short[6][lang]
         
             default:
                 break
