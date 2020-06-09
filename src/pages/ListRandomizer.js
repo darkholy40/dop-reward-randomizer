@@ -6,13 +6,9 @@ import {
     Button,
     Row,
     Col,
-    Progress,
-    Icon,
-    Popconfirm,
     message
 } from 'antd'
 import 'antd/dist/antd.min.css'
-// import swal from 'sweetalert'
 import swalCustomize from '@sweetalert/with-react'
 import useInterval from '../components/functions/useInterval'
 
@@ -117,13 +113,11 @@ const AwardsResult = styled.div`
         
         span.left {
             width: 40%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         span.right {
             width: 60%;
+            margin-left: 0.5rem;
 
             span.first-picked-up {
                 animation-duration: 2s;
@@ -211,7 +205,7 @@ function ListRandomizer(props) {
                 // console.log(response.data)
                 setPersonsList(response.data)
 
-                setListItems(response.data.data)
+                setListItems(response.data.data.remain)
             }
         })
         .catch((err) => {
@@ -240,15 +234,15 @@ function ListRandomizer(props) {
     function saveData(theChosenId) {
         const currentAwardId = awardsList.data.awards_remain[0].id
 
-        console.log(`the chosen: ${theChosenId}`)
-        console.log(`the current award id: ${currentAwardId}`)
+        // console.log(`the chosen: ${theChosenId}`)
+        // console.log(`the current award id: ${currentAwardId}`)
 
         axios.post(`${props.url}/save/pickedup-person`, {
             awardId: currentAwardId,
             personId: theChosenId
         })
         .then(res => {
-            console.log(res.data)
+            // console.log(res.data)
             fetchData()
         })
         .catch((err) => {
@@ -259,7 +253,7 @@ function ListRandomizer(props) {
     function initialState(stateName) {
         switch (stateName) {
             case 'listItems':
-                return ['0', '1', '2']
+                return []
 
             case 'startBtnIcon':
                 return 'caret-right'
@@ -292,13 +286,6 @@ function ListRandomizer(props) {
         setListItems(swappedItems)
     }
 
-    function removeListItem(arrChoicesIndex) {
-        const markedItem = listItems[arrChoicesIndex]
-        setListItems(listItems.filter((item, index) => arrChoicesIndex !== index))
-
-        errorMessage(`Remove "${markedItem}" from your list.`)
-    }
-
     function startButtonHandleClick(time) {
         setStartBtnIcon('loading')
         setPercent(0)
@@ -326,14 +313,6 @@ function ListRandomizer(props) {
 
     function successMessage(str) {
         message.success(str)
-    }
-
-    function errorMessage(str) {
-        message.error(str)
-    }
-      
-    function warningMessage(str) {
-        message.warning(str)
     }
 
     return (
@@ -371,7 +350,7 @@ function ListRandomizer(props) {
                             <Label theme={props.theme}>จำนวนกำลังพลของ กพ.ทบ. (ทั้งหมด {personsList.max} นาย)</Label>
                             <PersonsAmountBlock>
                                 <div>
-                                    {Object.keys(personsList).length > 0 && personsList.data.map((person, personIndex) => {
+                                    {Object.keys(personsList).length > 0 && personsList.data.all.map((person, personIndex) => {
                                         return (
                                             <p key={personIndex} className={person.is_picked_up > 0 ? "is-picked-up" : ""}>
                                                 {`${personIndex+1}.)`} {person.fullname}
@@ -387,7 +366,7 @@ function ListRandomizer(props) {
                                         size='large'
                                         type='primary'
                                         icon={startBtnIcon}
-                                        disabled={awardsList.remain === 0}
+                                        disabled={awardsList.remain === 0 || startBtnIcon === 'loading'}
                                     >
                                         สุ่มจับรางวัล
                                     </Button>

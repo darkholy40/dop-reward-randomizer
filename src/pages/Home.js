@@ -71,36 +71,6 @@ const Label = styled.p`
     border-bottom: 1px solid ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'};
 `
 
-const PersonsAmountBlock = styled.div`
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-
-    div {
-        height: 300px;
-        overflow: auto;
-        text-align: left;
-        margin: 0 5rem;
-
-        p {
-            margin: 0;
-
-            &.is-picked-up {
-                background-color: rgba(0, 255, 0, 0.5);
-            }
-        }
-        
-        @media (max-width: 991px) {
-            margin: 0;
-
-            p {
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-        }
-    }
-`
-
 const ListItemsNotificationText = styled.p`
     text-align: center;
     font-size: 0.85rem;
@@ -118,13 +88,11 @@ const AwardsResult = styled.div`
         
         span.left {
             width: 40%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         span.right {
             width: 60%;
+            margin-left: 0.5rem;
 
             span.first-picked-up {
                 animation-duration: 2s;
