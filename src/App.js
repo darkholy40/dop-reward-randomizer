@@ -22,6 +22,62 @@ const AppContainer = styled.div`
     color: ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, .45)' : 'rgba(255, 255, 255, .45)'};
     transition: 0.3s;
   }
+
+  @keyframes highlight-yellow-day {
+    0% {
+      background-color: rgba(255, 255, 0, 1);
+    }
+
+    50% {
+      background-color: rgb(255, 255, 255);
+    }
+
+    100% {
+      background-color: rgba(255, 255, 0, 1);
+    }
+  }
+
+  @keyframes highlight-yellow-night {
+    0% {
+      background-color: rgba(255, 255, 0, 0.5);
+    }
+
+    50% {
+      background-color: rgb(45, 45, 45);
+    }
+
+    100% {
+      background-color: rgba(255, 255, 0, 0.5);
+    }
+  }
+
+  @keyframes highlight-green-day {
+    0% {
+      background-color: rgba(0, 255, 0, 1);
+    }
+
+    50% {
+      background-color: rgb(255, 255, 255);
+    }
+
+    100% {
+      background-color: rgba(0, 255, 0, 1);
+    }
+  }
+
+  @keyframes highlight-green-night {
+    0% {
+      background-color: rgba(0, 255, 0, 0.5);
+    }
+
+    50% {
+      background-color: rgb(45, 45, 45);
+    }
+
+    100% {
+      background-color: rgba(0, 255, 0, 0.5);
+    }
+  }
 `
 
 function mapStateToProps(state) {

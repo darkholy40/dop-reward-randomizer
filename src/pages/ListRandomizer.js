@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import {
-    Input,
     Button,
     Row,
     Col,
@@ -25,46 +24,33 @@ import Card from '../components/layouts/Card'
 import MainTitle from '../components/layouts/MainTitle'
 import LoadingSwal from '../components/layouts/LoadingSwal'
 
-const NextReward = styled.div`
+const NextAward = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    .next-award {
+    p.block {
+        margin: 0;
+    }
+
+    span.next-award {
         font-size: 1.5rem;
         animation-duration: 2s;
-        animation-name: ${props => props.theme === 'sun' ? 'highlightday' : 'highlightnight'};
+        animation-name: ${props => props.theme === 'sun' ? 'highlight-yellow-day' : 'highlight-yellow-night'};
         animation-delay: 0;
         animation-iteration-count: infinite;
         animation-direction: forward;
     }
 
-    /* Standard syntax */
-    @keyframes highlightday {
-        0% {
-            background-color: rgba(255, 255, 0, 0.3);
-        }
-
-        50% {
-            background-color: rgb(255, 255, 255);
-        }
-
-        100% {
-            background-color: rgba(255, 255, 0, 0.3);
-        }
+    .dummy {
+        opacity: 0;
     }
 
-    @keyframes highlightnight {
-        0% {
-            background-color: rgba(255, 255, 0, 0.3);
-        }
+    @media (max-width: 767px) {
+        flex-direction: column;
 
-        50% {
-            background-color: rgb(75, 75, 75);
-        }
-
-        100% {
-            background-color: rgba(255, 255, 0, 0.3);
+        .dummy {
+            display: none;
         }
     }
 `
@@ -75,15 +61,13 @@ const Label = styled.p`
     border-bottom: 1px solid ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'};
 `
 
-const VerticalSpace = styled.div`
-    margin-bottom: 10px;
-`
+const PersonsAmountBlock = styled.div`
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
 
-const ListItemsInput = styled(Input)`
-    width: '100%';
-    color: ${props => props.theme !== 'sun' && 'rgb(255, 255, 255)'};
-    background-color: ${props => props.theme !== 'sun' && 'rgb(90, 90, 90)'};
-    border-color: ${props => props.theme !== 'sun' && 'rgb(125, 125, 125)'};
+    span {
+        font-size: 1.5rem;
+    }
 `
 
 const SuccessContent = styled.p`
@@ -164,39 +148,10 @@ const RandomizedResultContent = styled.p`
 
     &.firstPrize {
         animation-duration: 2s;
-        animation-name: ${props => props.theme === 'sun' ? 'highlightday' : 'highlightnight'};
+        animation-name: ${props => props.theme === 'sun' ? 'highlight-green-day' : 'highlight-green-night'};
         animation-delay: 0;
         animation-iteration-count: infinite;
         animation-direction: forward;
-    }
-
-    /* Standard syntax */
-    @keyframes highlightday {
-        0% {
-            background-color: rgba(255, 255, 0, 0.3);
-        }
-
-        50% {
-            background-color: rgb(255, 255, 255);
-        }
-
-        100% {
-            background-color: rgba(255, 255, 0, 0.3);
-        }
-    }
-
-    @keyframes highlightnight {
-        0% {
-            background-color: rgba(255, 255, 0, 0.3);
-        }
-
-        50% {
-            background-color: rgb(75, 75, 75);
-        }
-
-        100% {
-            background-color: rgba(255, 255, 0, 0.3);
-        }
     }
 `
 
@@ -231,68 +186,6 @@ const ClearButton = styled(Button)`
     padding: 0;
 `
 
-const ListItemsInputContainer = styled.div`
-    display: flex;
-
-    @media (max-width: 767px) {
-        flex-direction: column;
-    }
-`
-
-const CustomizedLabel = styled.div`
-    width: 20%;
-    min-width: 70px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    font-weight: 500;
-    color: ${props => props.theme === 'sun' ? 'rgb(0, 0, 0)' : 'rgb(225, 225, 225)'};
-    transition: 0.3s;
-
-    @media (max-width: 767px) {
-        width: 100%;
-        justify-content: flex-start;
-    }
-`
-
-const CustomizedInputBlock = styled.div`
-    width: 80%;
-    display: flex;
-    flex-direction: row;
-    margin-left: 10px;
-
-    .sub_customized_input_block {
-        width: 80%;
-    }
-
-    .add_button_layout {
-        margin-left: 10px;
-        width: 20%;
-    }
-
-    @media (max-width: 767px) {
-        width: 100%;
-        margin-left: 0;
-    }
-`
-
-const PlusButton = styled(Button)`
-    transition: 0.3s;
-
-    &:disabled {
-        cursor: default;
-        border-color: ${props => props.settheme !== 'sun' && 'rgb(125, 125, 125)'};
-        background-color: ${props => props.settheme !== 'sun' && 'rgb(75, 75, 75)'};
-
-        &:active,
-        &:focus,
-        &:hover {
-            border-color: ${props => props.settheme !== 'sun' && 'rgb(125, 125, 125)'};
-            background-color: ${props => props.settheme !== 'sun' && 'rgb(75, 75, 75)'};
-        }
-    }
-`
-
 const ClearResultButton = styled(Button)`
     position: absolute;
     top: 1rem;
@@ -305,8 +198,6 @@ function mapStateToProps(state) {
 }
 
 function ListRandomizer(props) {
-    const [currentListItem, setCurrentListItem] = useState(initialState('currentListItem'))
-    const [plusButtonDisabledStatus, setPlusButtonDisabledStatus] = useState(initialState('plusButtonDisabledStatus'))
     const [listItems, setListItems] = useState(initialState('listItems'))
     const [listItemsNotice, setListItemsNotice] = useState(initialState('listItemsNotice'))
     const [randomizedListItems, setRandomizedListItems] = useState(initialState('randomizedListItems'))
@@ -353,7 +244,8 @@ function ListRandomizer(props) {
 
     useEffect(() => {
         if(percent === 100) {
-            displayResultModal()
+            swalCustomize.close()
+            successMessage("สุ่มรายชื่อกำลังพลสำเร็จ")
         }
     }, [percent])
 
@@ -378,7 +270,7 @@ function ListRandomizer(props) {
                 return true
 
             case 'listItems':
-                return []
+                return ['0', '1', '2']
 
             case 'listItemsNotice':
                 return `There's no any list items.`
@@ -410,8 +302,6 @@ function ListRandomizer(props) {
     }
 
     function getBackToInitialState() {
-        setCurrentListItem(initialState('currentListItem'))
-        setPlusButtonDisabledStatus(initialState('plusButtonDisabledStatus'))
         setListItems(initialState('listItems'))
         setListItemsNotice(initialState('listItemsNotice'))
         setStartBtnIcon(initialState('startBtnIcon'))
@@ -424,36 +314,6 @@ function ListRandomizer(props) {
     function takeResultToInitialState() {
         setRandomizedListItems(initialState('randomizedListItems'))
         setPercent(initialState('percent'))
-    }
-
-    function listItemsHandleChange(event) {
-        const value = event.target.value
-        setCurrentListItem(value)
-
-        if(value !== '') {
-            setPlusButtonDisabledStatus(false)
-        } else {
-            setPlusButtonDisabledStatus(initialState('plusButtonDisabledStatus'))
-        }
-    }
-
-    function listItemsHandleKeyPress(event) {
-        if(currentListItem !== '') {
-            if (event.key === 'Enter') {
-                addListItem()
-            }
-        }
-    }
-
-    function addListItem() {
-        setListItems([...listItems, currentListItem])
-        setCurrentListItem('')
-        setListItemsNotice('')
-        setClearBtnDisplay('block')
-        setStartBtnDisabled(false)
-        setPlusButtonDisabledStatus(initialState('plusButtonDisabledStatus'))
-
-        successMessage(`Add "${currentListItem}" to your list.`)
     }
 
     function swapListItems() {
@@ -499,7 +359,7 @@ function ListRandomizer(props) {
         setRandomizedListItems(initialState('randomizedListItems'))
         setPercent(0)
 
-        LoadingSwal("Randomizing...", props.theme)
+        LoadingSwal("กำลังสุ่มรายชื่อ...", props.theme)
 
         setTimeout(() => {
             goRandomize()
@@ -534,65 +394,12 @@ function ListRandomizer(props) {
         stopProcess()
     }
 
-    function displayTopThreeRandomizedListItems() {
-        return (
-            <RandomizedResultContent>
-                There were {randomizedListItems.length} items in your list. Here is the top 3 of them:
-            </RandomizedResultContent>
-        )
-    }
-
     function displayAllRandomizedListItems() {
         return (
             <RandomizedResultContent>
                 There were {randomizedListItems.length} items in your list. Here they are in random order:
             </RandomizedResultContent>
         )
-    }
-
-    function displayResultModal() {
-        swalCustomize({
-            className: props.theme !== 'sun' && "night",
-            buttons: {
-                cancel: 'Close',
-                randomAgain: {
-                    text: 'Again!',
-                    value: 'random'
-                }
-            },
-            closeOnClickOutside: false,
-            closeOnEsc: false,
-            content: (
-                <SwalResultContainer padding="0.5rem 1rem 0 1rem" theme={props.theme}>
-                    <TitleIcon type="check-circle" theme="filled" color="#52c41a" />
-                    <SuccessContent theme={props.theme}>Successfully Randomized</SuccessContent>
-                    <DisplayRandomizedResultContent padding={randomizedListItems.length > 0 ? '0.5rem 0' : '0'} hasShadow={true}>
-                        {randomizedListItems.length > 0
-                            && randomizedListItems.length > 3 
-                                ? displayTopThreeRandomizedListItems()
-                                : displayAllRandomizedListItems()}
-                        {randomizedListItems.slice(0, 3).map((item, index) => {
-                            return (
-                                <RandomizedResultContent key={index} className={index === 0 && 'firstPrize'} theme={props.theme}>
-                                    <span className="orderedIcon">{renderMedalIcon(index+1)}</span>
-                                    <span>{item}</span>
-                                </RandomizedResultContent>
-                            )
-                        })}
-                    </DisplayRandomizedResultContent>
-                </SwalResultContainer>
-            )
-        })
-        .then((value) => {
-            switch(value) {
-                case "random":
-                    startButtonHandleClick(500)
-                    break
-
-                default:
-                    break
-            }
-        })
     }
 
     function renderMedalIcon(prizeValue) {
@@ -627,15 +434,15 @@ function ListRandomizer(props) {
         <MainContainer className="animated fadeIn">
             <MainRow>
                 <Col xs={24}>
-                    <NextReward theme={props.theme}>
-                        <CardShield style={{ opacity: 0 }}>
+                    <NextAward theme={props.theme}>
+                        <CardShield className="dummy">
                             <Card>
                                 จำนวนรางวัลคงเหลือ: 21
                             </Card>
                         </CardShield>
                         <CardShield className={firstCardClass}>
                             <Card>
-                                <p>
+                                <p className="block">
                                     รางวัลรายการถัดไป: <span className="next-award">เงินจำนวน 1000 บาท</span>
                                 </p>
                             </Card>
@@ -645,127 +452,32 @@ function ListRandomizer(props) {
                                 จำนวนรางวัลคงเหลือ: <span className="next-award">21</span>
                             </Card>
                         </CardShield>
-                    </NextReward>
+                    </NextAward>
                 </Col>
             </MainRow>
             <MainRow>
                 <Col md={12} sm={24}>
-                    <CardShield className={firstCardClass}>
-                        <Card>
-                            <ListItemsInputContainer>
-                                <CustomizedLabel theme={props.theme}>
-                                    Add an item
-                                </CustomizedLabel>
-                                <CustomizedInputBlock>
-                                    <div className="sub_customized_input_block">
-                                        <ListItemsInput
-                                            theme={props.theme}
-                                            aria-label="List Items"
-                                            size='large'
-                                            disabled={elementDisabled}
-                                            value={currentListItem}
-                                            placeholder='Enter an item'
-                                            onChange={listItemsHandleChange}
-                                            onKeyPress={listItemsHandleKeyPress}
-                                        />
-                                    </div>
-                                    <div className="add_button_layout">
-                                        <PlusButton
-                                            style={{ width: '100%' }}
-                                            disabled={plusButtonDisabledStatus}
-                                            onClick={addListItem}
-                                            size='large'
-                                            type='primary'
-                                            icon="plus"
-                                            settheme={props.theme}
-                                        >
-                                        </PlusButton>
-                                    </div>
-                                </CustomizedInputBlock>
-                            </ListItemsInputContainer>
-                        </Card>
-                    </CardShield>
                     <CardShield className={secondCardClass}>
                         <Card>
-                            <Label theme={props.theme}>List Items</Label>
-                            <DisplayMainData>
-                                <Row className="list_items_notice_container">
-                                    <ListItemsNotificationText className="animated fadeIn" display={listItems.length === 0 ? "block" : "none"} theme={props.theme}>
-                                        {listItemsNotice}
-                                    </ListItemsNotificationText>
-                                </Row>
-                                <ButtonContainer display={clearBtnDisplay} hasmarginbottom="true" className="animated fadeIn">
-                                    <LeftCol xs={12}>
-                                        <Button
-                                            className="animated fadeIn"
-                                            size='small'
-                                            shape='round'
-                                            type='ghost'
-                                            icon='swap'
-                                            disabled={elementDisabled}
-                                            onClick={() => swapListItems()}
-                                            style={listItems.length > 1 ? {display: 'block'} : {display : 'none'}}
-                                        >
-                                            Swap
-                                        </Button>
-                                    </LeftCol>
-                                    <RightCol xs={12}>
-                                        <Popconfirm
-                                            placement="bottomRight"
-                                            title="Are you sure to remove all items?"
-                                            onConfirm={removeAllListItems}
-                                            okText="Confirm"
-                                            okType="danger"
-                                            cancelText="Cancel"
-                                        >
-                                            <ClearButton
-                                                style={{padding: 0}}
-                                                size='small'
-                                                shape='round'
-                                                type='link'
-                                                disabled={elementDisabled}
-                                            >
-                                                Clear
-                                            </ClearButton>
-                                        </Popconfirm>
-                                    </RightCol>
-                                </ButtonContainer>
-                                {listItems.map((item, index) => 
-                                    <Row key={`list_items_${index}`} className="list_items_container animated fadeIn">
-                                        <LeftCol xs={20}>
-                                            <p>{index+1}) {item}</p>
-                                        </LeftCol>
-                                        <RightCol xs={4}>
-                                            <Button
-                                                size='small'
-                                                type='danger'
-                                                icon='minus'
-                                                shape='circle'
-                                                onClick={() => removeListItem(index)}
-                                                disabled={elementDisabled}
-                                            >
-                                            </Button>
-                                        </RightCol>
-                                    </Row>
-                                )}
-                                <ButtonContainer display={startBtnDisplay}>
-                                    <Col xs={24} className="animated fadeIn">
-                                        <Button
-                                            disabled={startBtnDisabled}
-                                            onClick={() => startButtonHandleClick(1000)}
-                                            size='large'
-                                            shape='round'
-                                            type='primary'
-                                            icon={startBtnIcon}
-                                        >
-                                            Randomize
-                                        </Button>
-                                    </Col>
-                                </ButtonContainer>
-                                <ListItemsNotificationText className="animated fadeIn" display={listItems.length === 1 ? 'block' : 'none'} theme={props.theme}>
-                                    <ListItemsNotificationIcon type="info-circle" theme="twoTone" twoToneColor="#faad14" /> Need one or more items to randomize.
-                                </ListItemsNotificationText>
-                            </DisplayMainData>
+                            <Label theme={props.theme}>จำนวนกำลังพลของ กพ.ทบ.</Label>
+                            <PersonsAmountBlock>
+                                <span>
+                                    38 / 40
+                                </span>
+                            </PersonsAmountBlock>
+                            <ButtonContainer display={startBtnDisplay}>
+                                <Col xs={24} className="animated fadeIn">
+                                    <Button
+                                        onClick={() => startButtonHandleClick(1500)}
+                                        size='large'
+                                        shape='round'
+                                        type='primary'
+                                        icon={startBtnIcon}
+                                    >
+                                        สุ่มจับรางวัล
+                                    </Button>
+                                </Col>
+                            </ButtonContainer>
                         </Card>
                     </CardShield>
                 </Col>
@@ -784,14 +496,9 @@ function ListRandomizer(props) {
                                 }}
                             >
                             </ClearResultButton>
-                            <Label theme={props.theme}>Result</Label>
-                            <TitleIcon type={percent === 100 ? "check-circle" : "question-circle"} theme="filled" color={percent === 100 ? "#52c41a" : props.theme === 'sun' ? "#dddddd" : "#999999"} />
-                            <VerticalSpace />
-                            <ShowProgressBar theme={props.theme}>
-                                <Progress percent={percent} status="active" />
-                            </ShowProgressBar>
+                            <Label theme={props.theme}>ผลการจับรางวัล</Label>
                             <ListItemsNotificationText display={randomizedListItems.length === 0 ? 'block' : 'none'} theme={props.theme}>
-                                Your result will be display here.
+                                ยังไม่ทำการจับรางวัล
                             </ListItemsNotificationText>
                             <DisplayRandomizedResultContent padding={randomizedListItems.length > 0 ? '0.5rem 0' : '0'}>
                                 {randomizedListItems.length > 0 && displayAllRandomizedListItems()}
