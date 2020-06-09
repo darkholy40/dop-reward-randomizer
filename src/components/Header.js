@@ -14,7 +14,7 @@ import MoonIcon from './icons/theme/Moon'
 
 const HeaderContainer = styled.div`
     background-color: ${props => props.theme === 'sun' ? '#0059A6' : 'rgb(50, 50, 50)'};
-    color: rgb(225, 225, 225);
+    color: #ffffff;
     transition: 0.3s;
 
     display: flex;
@@ -68,7 +68,7 @@ const ControlPanel = styled.div`
     }
 
     div.pipe {
-        border-left: 1px solid #ccc;
+        border-left: 1px solid #eee;
         height: 24px;
     }
 
@@ -79,12 +79,12 @@ const ControlPanel = styled.div`
 
 const IconContainer = styled.div`
     display: flex;
-    color: rgb(200, 200, 200);
+    color: rgb(225, 225, 225);
     cursor: pointer;
     transition: 0.1s;
 
     &:hover, &:active {
-        color: rgb(225, 225, 225);
+        color: rgb(255, 255, 255);
     }    
 `
 

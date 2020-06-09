@@ -74,6 +74,8 @@ const CustomizedModal = styled(Modal)`
 `
 
 const ClockModal = styled(Modal)`
+    max-width: 760px;
+    
     .ant-modal-content {
         overflow: hidden;
     }
