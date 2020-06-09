@@ -6,6 +6,7 @@
     "@sweetalert/with-react": "^0.1.1",
     "animate.css": "^3.7.2",
     "antd": "^3.23.2",
+    "axios": "^0.19.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-redux": "^7.1.1",

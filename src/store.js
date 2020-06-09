@@ -22,7 +22,8 @@ const initState = {
     breadcrumb: [],
     utcMultipliers: multipliers,
     newDate: getUniversalCoordinatedTime(),
-    theme: 'sun'
+    theme: 'sun',
+    url: 'http://localhost:5010'
 }
 
 const reducer = (state = initState, action) => {
