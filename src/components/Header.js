@@ -197,7 +197,7 @@ function Header(props) {
                     onCancel={() => setModalVisibility(false)}
                     settheme={props.theme}
                 >
-                    <MainTitle title="What's New" marginBottom="10px" />
+                    <MainTitle title="มีอะไรใหม่" marginBottom="10px" />
                     {version.map((item, index) => {
                         return (
                             <InfoContent key={index}>
@@ -210,6 +210,18 @@ function Header(props) {
                             </InfoContent>
                         )
                     })}
+                    <p style={{
+                        textAlign: 'right',
+                        marginTop: 30,
+                        marginRight: 14
+                    }}>
+                        กสท.สพบ.กพ.ทบ.
+                    </p>
+                    <p style={{
+                        textAlign: 'right'
+                    }}>
+                        ร.ต. อภิรักษ์ สุวรรณโยธี
+                    </p>
                 </InfoModal>
             </HeaderContent>
         </HeaderContainer>
