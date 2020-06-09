@@ -400,7 +400,7 @@ function ListRandomizer(props) {
                     <CardShield className={thirdCardClass}>
                         <Card>
                             <Label theme={props.theme}>ผลการจับรางวัล</Label>
-                            <ListItemsNotificationText display={awardsList.remain === 0 && awardsList.remain > 0 ? 'block' : 'none'} theme={props.theme}>
+                            <ListItemsNotificationText display={awardsList.remain === awardsList.max ? 'block' : 'none'} theme={props.theme}>
                                 ยังไม่ทำการจับรางวัล
                             </ListItemsNotificationText>
                             <AwardsResult theme={props.theme}>
