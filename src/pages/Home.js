@@ -3,15 +3,18 @@ import { connect } from 'react-redux'
 import axios from 'axios'
 import styled from 'styled-components'
 import {
-    Col
+    Col,
+    notification
 } from 'antd'
 import 'antd/dist/antd.min.css'
+import swalCustomize from '@sweetalert/with-react'
 import useInterval from '../components/functions/useInterval'
 
 import MainContainer from '../components/layouts/MainContainer'
 import MainRow from '../components/layouts/MainRow'
 import CardShield from '../components/layouts/CardShield'
 import Card from '../components/layouts/Card'
+import LoadingSwal from '../components/layouts/LoadingSwal'
 
 const StyledCardShield = styled(CardShield)`
     display: flex;
@@ -114,6 +117,7 @@ function Home(props) {
     const [secondCardClass, setSecondCardClass] = useState('hidden')
 
     const [awardsList, setAwardsList] = useState({})
+    const [connectionIsLost, setConnectionIsLost] = useState(0)
 
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
@@ -139,6 +143,25 @@ function Home(props) {
         }, 150)
     }, [])
 
+    useEffect(() => {
+        switch (connectionIsLost) {
+            case 1:
+                LoadingSwal("การเชื่อมต่อไม่เสถียร... กำลังเชื่อมต่ออีกครั้ง...", props.theme)
+                break
+
+            case 2:
+                notification['success']({
+                    message: 'แจ้งเตือน',
+                    description: 'การเชื่อมต่อสำเร็จ',
+                    duration: 3,
+                })
+                break
+        
+            default:
+                break
+        }
+    }, [connectionIsLost])
+
     useInterval(() => {
         fetchData()
     }, 1000)
@@ -152,11 +175,21 @@ function Home(props) {
             if(response.code === "00200") {
                 // console.log(response.data)
                 setAwardsList(response.data)
+
+                if(connectionIsLost === 1) {
+                    reconnect()
+                }
             }
         })
         .catch((err) => {
             console.log(err)
+            setConnectionIsLost(1)
         })
+    }
+
+    function reconnect() {
+        swalCustomize.close()
+        setConnectionIsLost(2)
     }
 
     return (
@@ -172,16 +205,27 @@ function Home(props) {
                         <CardShield className={firstCardClass}>
                             <Card>
                                 <p className="block">
-                                    {awardsList.remain > 0 ?
-                                    <>รางวัลรายการถัดไป: <span className="next-award">{awardsList.data.awards_remain[0].name}</span></> :
-                                    <span className="next-award">จับรางวัลหมดแล้ว</span>
+                                    {Object.keys(awardsList).length > 0
+                                    ?
+                                        awardsList.remain > 0
+                                        ?
+                                        <>รางวัลรายการถัดไป: <span className="next-award">{awardsList.data.awards_remain[0].name}</span></>
+                                        :
+                                        <span className="next-award">จับรางวัลหมดแล้ว</span>
+                                    :
+                                        <span>ไม่สามารถอ่านข้อมูลได้</span>
                                     }
                                 </p>
                             </Card>
                         </CardShield>
-                        <CardShield className={firstCardClass}>
+                        <CardShield className={Object.keys(awardsList).length > 0 ? firstCardClass : "dummy"}>
                             <Card>
-                                จำนวนรางวัลคงเหลือ: <span className="remain-awards">{awardsList.remain}</span>
+                            {Object.keys(awardsList).length > 0
+                                ?
+                                    <>จำนวนรางวัลคงเหลือ: <span className="remain-awards">{awardsList.remain}</span></>
+                                :
+                                    <span>ไม่สามารถอ่านข้อมูลได้</span>
+                            }
                             </Card>
                         </CardShield>
                     </NextAward>
