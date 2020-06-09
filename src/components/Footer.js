@@ -14,12 +14,13 @@ const FooterContainer = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1.25rem 2rem 1.5rem 2rem;
+    padding: 1rem 0;
     margin-top: auto;
-    background-color: ${props => props.theme === 'sun' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)'};
-    color: ${props => props.theme === 'sun' ? 'rgb(0, 0, 0)' : 'rgb(225, 225, 225)'};
+    margin-left: 4rem;
+    margin-right: 4rem;
+    color: ${props => props.theme === 'sun' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)'};
     position: relative;
-    box-shadow: 0px -5px 10px rgba(0,0,0,0.1);
+    border-top: 1px solid ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.1);' : 'rgba(255, 255, 255, 0.1)'};
     transition: 0.3s;
 
     &.hidden {
@@ -30,11 +31,6 @@ const FooterContainer = styled.div`
 const Row = styled.div`
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
-
-    @media (max-width: 767px) {
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
-    }
 `
 
 const FooterImageContainer = styled.div`
@@ -171,10 +167,6 @@ const FooterTimeString = styled.span`
 
     .clock {
         margin-left: 5px;
-    }
-
-    @media (max-width: 767px) {
-        margin-bottom: 1rem;
     }
 `
 

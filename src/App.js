@@ -11,7 +11,7 @@ const AppContainer = styled.div`
   flex-direction: column;
   min-height: 100vh;
   position: relative;
-  background-color: ${props => props.theme === 'sun' ? 'rgb(244, 245, 247)' : 'rgb(25, 25, 25)'};
+  background-color: ${props => props.theme === 'sun' ? 'rgb(255, 255, 255)' : 'rgb(25, 25, 25)'};
   transition: 0.3s;
 
   .ant-btn-ghost {

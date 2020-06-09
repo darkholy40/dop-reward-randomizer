@@ -13,8 +13,8 @@ import SunIcon from './icons/theme/Sun'
 import MoonIcon from './icons/theme/Moon'
 
 const HeaderContainer = styled.div`
-    background-color: ${props => props.theme === 'sun' ? 'rgb(255, 255, 255)' : 'rgb(50, 50, 50)'};
-    color: ${props => props.theme === 'sun' ? 'rgb(0, 0, 0)' : 'rgb(225, 225, 225)'};
+    background-color: ${props => props.theme === 'sun' ? '#0059A6' : 'rgb(50, 50, 50)'};
+    color: rgb(225, 225, 225);
     transition: 0.3s;
 
     display: flex;
@@ -41,10 +41,6 @@ const BreadCrumb = styled.span`
     user-select: none; /* Standard syntax */
 `
 
-const ActiveBreadCrumb = styled(BreadCrumb)`
-    border-bottom: 1px solid ${props => props.theme === 'sun' ? 'rgb(0, 0, 0)' : 'rgb(225, 225, 225)'};
-`
-
 const BreadCrumbIcon = styled(Icon)`
     margin-left: 0.5rem;
     margin-right: 0.5rem;
@@ -66,7 +62,7 @@ const ControlPanel = styled.div`
 
         svg {
             padding: 3px;
-            border: 1px solid ${props => props.theme === 'sun' ? 'rgba(24, 144, 255, 0.5)' : 'rgba(250, 173, 20, 0.5)'};
+            border: 1px solid ${props => props.theme === 'sun' ? 'rgba(36, 172, 242, 0.5)' : 'rgba(250, 173, 20, 0.5)'};
             border-radius: 30px;
         }
     }
@@ -83,12 +79,12 @@ const ControlPanel = styled.div`
 
 const IconContainer = styled.div`
     display: flex;
-    color: ${props => props.theme === 'sun' ? 'rgb(150, 150, 150)' : 'rgb(200, 200, 200)'};
+    color: rgb(200, 200, 200);
     cursor: pointer;
     transition: 0.1s;
 
     &:hover, &:active {
-        color: ${props => props.theme === 'sun' ? 'rgb(105, 105, 105)' : 'rgb(225, 225, 225)'};
+        color: rgb(225, 225, 225);
     }    
 `
 
@@ -155,7 +151,7 @@ function Header(props) {
     function displayThemeIcon(value) {
         switch (value) {
             case 'sun':
-                return <MoonIcon color={hexColorToRgba('#1890ff', 1)} setWidth="1.5rem" setHeight="1.5rem" />
+                return <MoonIcon color={hexColorToRgba('#24ACF2', 1)} setWidth="1.5rem" setHeight="1.5rem" />
         
             default:
                 return <SunIcon color={hexColorToRgba('#faad14', 1)} setWidth="1.5rem" setHeight="1.5rem" />
@@ -167,7 +163,7 @@ function Header(props) {
             <HeaderContent>
                 {props.breadcrumb !== undefined && props.breadcrumb.map((item, index) => {
                     if(index === props.breadcrumb.length - 1) {
-                        return <ActiveBreadCrumb key={index} theme={props.theme}>{item.page}</ActiveBreadCrumb>
+                        return <BreadCrumb key={index} theme={props.theme}>{item.page}</BreadCrumb>
                     }
 
                     return (
