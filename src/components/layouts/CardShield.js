@@ -8,6 +8,10 @@ const CardShield = styled.div`
     &.hidden {
         opacity: 0;
     }
+
+    @media (max-width: 767px) {
+        padding: 0;
+    }
 `
 
 export default CardShield
