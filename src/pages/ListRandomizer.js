@@ -19,47 +19,8 @@ import CardShield from '../components/layouts/CardShield'
 import Card from '../components/layouts/Card'
 import LoadingSwal from '../components/layouts/LoadingSwal'
 
-const NextAward = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    p.block {
-        margin: 0;
-    }
-
-    span.next-award {
-        font-size: 1.5rem;
-        padding: 0 0.5rem;
-        animation-duration: 2s;
-        animation-name: ${props => props.theme === 'sun' ? 'highlight-yellow-day' : 'highlight-yellow-night'};
-        animation-delay: 0;
-        animation-iteration-count: infinite;
-        animation-direction: forward;
-    }
-
-    span.remain-awards {
-        font-size: 1.5rem;
-        padding: 0 0.5rem;
-        animation-duration: 2s;
-        animation-name: ${props => props.theme === 'sun' ? 'highlight-blue-day' : 'highlight-blue-night'};
-        animation-delay: 0;
-        animation-iteration-count: infinite;
-        animation-direction: forward;
-    }
-
-    .dummy {
-        opacity: 0;
-    }
-
-    @media (max-width: 767px) {
-        flex-direction: column;
-
-        .dummy {
-            display: none;
-        }
-    }
-`
+import NextAward from '../components/coop/NextAward'
+import AwardsResult from '../components/coop/AwardsResult'
 
 const Label = styled.p`
     text-align: left;
@@ -92,40 +53,6 @@ const PersonsAmountBlock = styled.div`
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-            }
-        }
-    }
-`
-
-const ListItemsNotificationText = styled.p`
-    text-align: center;
-    font-size: 0.85rem;
-    color: ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.3)' : 'rgb(175, 175, 175)'};
-    margin: 0;
-    display: ${props => props.display || 'none'};
-    transition: 0.3s;
-`
-
-const AwardsResult = styled.div`
-    text-align: left;
-
-    p {
-        display: flex;
-        
-        span.left {
-            width: 40%;
-        }
-
-        span.right {
-            width: 60%;
-            margin-left: 0.5rem;
-
-            span.first-picked-up {
-                animation-duration: 2s;
-                animation-name: ${props => props.theme === 'sun' ? 'highlight-green-day' : 'highlight-green-night'};
-                animation-delay: 0;
-                animation-iteration-count: infinite;
-                animation-direction: forward;
             }
         }
     }
@@ -355,41 +282,7 @@ function ListRandomizer(props) {
     return (
         <MainContainer className="animated fadeIn">
             <MainRow>
-                <Col xs={24}>
-                    <NextAward theme={props.theme}>
-                        <CardShield className="dummy">
-                            <Card>
-                                จำนวนรางวัลคงเหลือ: {awardsList.remain}
-                            </Card>
-                        </CardShield>
-                        <CardShield className={firstCardClass}>
-                            <Card>
-                                <p className="block">
-                                    {Object.keys(awardsList).length > 0
-                                    ?
-                                        awardsList.remain > 0
-                                        ?
-                                        <>รางวัลรายการถัดไป: <span className="next-award">{awardsList.data.awards_remain[0].name}</span></>
-                                        :
-                                        <span className="next-award">จับรางวัลหมดแล้ว</span>
-                                    :
-                                        <span>ไม่สามารถอ่านข้อมูลได้</span>
-                                    }
-                                </p>
-                            </Card>
-                        </CardShield>
-                        <CardShield className={Object.keys(awardsList).length > 0 ? firstCardClass : "dummy"}>
-                            <Card>
-                            {Object.keys(awardsList).length > 0
-                                ?
-                                    <>จำนวนรางวัลคงเหลือ: <span className="remain-awards">{awardsList.remain}</span></>
-                                :
-                                    <span>ไม่สามารถอ่านข้อมูลได้</span>
-                            }
-                            </Card>
-                        </CardShield>
-                    </NextAward>
-                </Col>
+                <NextAward data={awardsList} setclass={firstCardClass} />
             </MainRow>
             <MainRow>
                 <Col md={12} sm={24}>
@@ -423,28 +316,7 @@ function ListRandomizer(props) {
                         </Card>
                     </CardShield>
                 </Col>
-                <Col md={12} sm={24}>
-                    <CardShield className={thirdCardClass}>
-                        <Card>
-                            <Label theme={props.theme}>ผลการจับรางวัล</Label>
-                            <ListItemsNotificationText display={awardsList.remain === awardsList.max ? 'block' : 'none'} theme={props.theme}>
-                                ยังไม่ทำการจับรางวัล
-                            </ListItemsNotificationText>
-                            <AwardsResult theme={props.theme}>
-                                {Object.keys(awardsList).length > 0 && awardsList.data.persons_whom_are_picked_up.map((pickedupPerson, pickedupPersonIndex) => {
-                                    return (
-                                        <p key={pickedupPersonIndex}>
-                                            <span className="left">{pickedupPerson.name}</span>
-                                            <span className="right">
-                                                <span className={pickedupPersonIndex === 0 ? "first-picked-up" : ""}>{pickedupPerson.fullname}</span>
-                                            </span>
-                                        </p>
-                                    )
-                                })}
-                            </AwardsResult>
-                        </Card>
-                    </CardShield>
-                </Col>
+                <AwardsResult data={awardsList} setclass={thirdCardClass} display="split" />
             </MainRow>
         </MainContainer>
     )
