@@ -23,7 +23,7 @@ const initState = {
     utcMultipliers: multipliers,
     newDate: getUniversalCoordinatedTime(),
     theme: 'sun',
-    url: 'http://localhost:5010'
+    url: 'http://164.115.43.132:5010'
 }
 
 const reducer = (state = initState, action) => {
