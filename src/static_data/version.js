@@ -1,6 +1,12 @@
 const version = [
     {
-        title: 'Version 1.1.1 (Jun 10th, 2020)',
+        title: 'Version 1.2.0 (Jun 10th, 2020)',
+        content: [
+            '[Improve] code refactoring'
+        ]
+    },
+    {
+        title: 'Version 1.1.1',
         content: [
             '[Improve] fixed bug when the connection was lost while randomizing',
             '[Add] disbled the randomize button when connection was lost'
