@@ -197,6 +197,7 @@ function ListRandomizer(props) {
         switch (connectionIsLost) {
             case 1:
                 LoadingSwal("การเชื่อมต่อไม่เสถียร... กำลังเชื่อมต่ออีกครั้ง...", props.theme)
+                setStartBtnIcon(initialState('startBtnIcon'))
                 break
 
             case 2:
@@ -281,6 +282,7 @@ function ListRandomizer(props) {
         .then(res => {
             // console.log(res.data)
             fetchData()
+            stopProcess()
         })
         .catch((err) => {
             console.log(err)
@@ -325,7 +327,7 @@ function ListRandomizer(props) {
 
     function startButtonHandleClick(time) {
         setStartBtnIcon('loading')
-        setPercent(0)
+        setPercent(initialState('percent'))
 
         LoadingSwal("กำลังสุ่มรายชื่อ...", props.theme)
 
@@ -336,6 +338,7 @@ function ListRandomizer(props) {
 
     function stopProcess() {
         setStartBtnIcon(initialState('startBtnIcon'))
+        setPercent(100)
     }
 
     function goRandomize() {
@@ -343,9 +346,6 @@ function ListRandomizer(props) {
         let theChosen = listItems[Math.floor(Math.random()*listItemsSize)]
 
         saveData(theChosen.id)
-
-        setPercent(100)
-        stopProcess()
     }
 
     function successMessage(str) {
@@ -414,7 +414,7 @@ function ListRandomizer(props) {
                                         size='large'
                                         type='primary'
                                         icon={startBtnIcon}
-                                        disabled={awardsList.remain === 0 || startBtnIcon === 'loading'}
+                                        disabled={awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
                                     >
                                         สุ่มจับรางวัล
                                     </Button>
