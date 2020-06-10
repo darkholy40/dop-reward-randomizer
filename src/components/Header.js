@@ -197,7 +197,7 @@ function Header(props) {
                     onCancel={() => setModalVisibility(false)}
                     settheme={props.theme}
                 >
-                    <MainTitle title="มีอะไรใหม่" marginBottom="10px" />
+                    <MainTitle title="ประวัติเวอร์ชัน" marginBottom="10px" />
                     {version.map((item, index) => {
                         return (
                             <InfoContent key={index}>

@@ -1,5 +1,12 @@
 const version = [
     {
+        title: 'Version 1.1.1 (Jun 10th, 2020)',
+        content: [
+            '[Improve] fixed bug when the connection was lost while randomizing',
+            '[Add] disbled the randomize button when connection was lost'
+        ]
+    },
+    {
         title: 'Version 1.1.0 (Jun 9th, 2020)',
         content: [
             '[Add] added reconnect() for connecting to database when the internet is unstable',
