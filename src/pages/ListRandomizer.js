@@ -64,6 +64,20 @@ const ButtonContainer = styled(Row)`
     ${props => props.hasmarginbottom && 'margin-bottom: 15px;'}
 `
 
+const NoMoreRandomizing = styled.div`
+    margin-top: 1rem;
+
+    span {
+        font-size: 1.25rem;
+        padding: 0 0.5rem;
+        animation-duration: 2s;
+        animation-name: ${props => props.theme === 'sun' ? 'highlight-red-day' : 'highlight-red-night'};
+        animation-delay: 0;
+        animation-iteration-count: infinite;
+        animation-direction: forward;
+    }
+`
+
 function mapStateToProps(state) {
     return state
 }
@@ -307,12 +321,17 @@ function ListRandomizer(props) {
                                         size='large'
                                         type='primary'
                                         icon={startBtnIcon}
-                                        disabled={awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
+                                        disabled={personsList.remain === 0 || awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
                                     >
                                         สุ่มจับรางวัล
                                     </Button>
                                 </Col>
                             </ButtonContainer>
+                            {personsList.remain === 0 &&
+                            <NoMoreRandomizing theme={props.theme}>
+                                <span>ฉลากหมดแล้ว</span>
+                            </NoMoreRandomizing>
+                            }
                         </Card>
                     </CardShield>
                 </Col>
