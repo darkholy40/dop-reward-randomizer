@@ -10,14 +10,13 @@ import {
     notification
 } from 'antd'
 import 'antd/dist/antd.min.css'
-import swalCustomize from '@sweetalert/with-react'
 import useInterval from '../components/functions/useInterval'
 
 import MainContainer from '../components/layouts/MainContainer'
 import MainRow from '../components/layouts/MainRow'
 import CardShield from '../components/layouts/CardShield'
 import Card from '../components/layouts/Card'
-import LoadingSwal from '../components/layouts/LoadingSwal'
+import LoadingModal from '../components/layouts/LoadingModal'
 
 import NextAward from '../components/coop/NextAward'
 import AwardsResult from '../components/coop/AwardsResult'
@@ -94,6 +93,10 @@ function ListRandomizer(props) {
     const [personsList, setPersonsList] = useState({})
     const [awardsList, setAwardsList] = useState({})
     const [connectionIsLost, setConnectionIsLost] = useState(0)
+    const [loadingModal, setLoadingModal] = useState({
+        title: '',
+        status: false
+    })
 
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
@@ -129,7 +132,10 @@ function ListRandomizer(props) {
 
     useEffect(() => {
         if(percent === 100) {
-            swalCustomize.close()
+            setLoadingModal({
+                ...loadingModal,
+                status: false
+            })
             successMessage("สุ่มรายชื่อกำลังพลสำเร็จ")
         }
     }, [percent])
@@ -137,7 +143,10 @@ function ListRandomizer(props) {
     useEffect(() => {
         switch (connectionIsLost) {
             case 1:
-                LoadingSwal("การเชื่อมต่อไม่เสถียร... กำลังเชื่อมต่ออีกครั้ง...", props.theme)
+                setLoadingModal({
+                    title: 'การเชื่อมต่อไม่เสถียร... กำลังเชื่อมต่ออีกครั้ง...',
+                    status: true
+                })
                 setStartBtnIcon(initialState('startBtnIcon'))
                 break
 
@@ -157,6 +166,22 @@ function ListRandomizer(props) {
     useInterval(() => {
         fetchData()
     }, 1000)
+
+    function initialState(stateName) {
+        switch (stateName) {
+            case 'listItems':
+                return []
+
+            case 'startBtnIcon':
+                return 'caret-right'
+
+            case 'percent':
+                return 0
+
+            default:
+                break
+        }
+    }
 
     function getPersonsAndAwardsList() {
         // ดึกข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
@@ -206,7 +231,10 @@ function ListRandomizer(props) {
     }
 
     function reconnect() {
-        swalCustomize.close()
+        setLoadingModal({
+            ...loadingModal,
+            status: false
+        })
         setConnectionIsLost(2)
     }
 
@@ -228,22 +256,6 @@ function ListRandomizer(props) {
         .catch((err) => {
             console.log(err)
         })
-    }
-
-    function initialState(stateName) {
-        switch (stateName) {
-            case 'listItems':
-                return []
-
-            case 'startBtnIcon':
-                return 'caret-right'
-
-            case 'percent':
-                return 0
-
-            default:
-                break
-        }
     }
 
     function swapListItems() {
@@ -270,7 +282,10 @@ function ListRandomizer(props) {
         setStartBtnIcon('loading')
         setPercent(initialState('percent'))
 
-        LoadingSwal("กำลังสุ่มรายชื่อ...", props.theme)
+        setLoadingModal({
+            title: 'กำลังสุ่มรายชื่อ...',
+            status: true
+        })
 
         setTimeout(() => {
             goRandomize()
@@ -337,6 +352,7 @@ function ListRandomizer(props) {
                 </Col>
                 <AwardsResult data={awardsList} setclass={thirdCardClass} display="split" />
             </MainRow>
+            <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
         </MainContainer>
     )
 }

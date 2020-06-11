@@ -5,12 +5,11 @@ import {
     notification
 } from 'antd'
 import 'antd/dist/antd.min.css'
-import swalCustomize from '@sweetalert/with-react'
 import useInterval from '../components/functions/useInterval'
 
 import MainContainer from '../components/layouts/MainContainer'
 import MainRow from '../components/layouts/MainRow'
-import LoadingSwal from '../components/layouts/LoadingSwal'
+import LoadingModal from '../components/layouts/LoadingModal'
 
 import NextAward from '../components/coop/NextAward'
 import AwardsResult from '../components/coop/AwardsResult'
@@ -25,6 +24,10 @@ function Home(props) {
 
     const [awardsList, setAwardsList] = useState({})
     const [connectionIsLost, setConnectionIsLost] = useState(0)
+    const [loadingModal, setLoadingModal] = useState({
+        title: '',
+        status: false
+    })
 
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
@@ -53,7 +56,10 @@ function Home(props) {
     useEffect(() => {
         switch (connectionIsLost) {
             case 1:
-                LoadingSwal("การเชื่อมต่อไม่เสถียร... กำลังเชื่อมต่ออีกครั้ง...", props.theme)
+                setLoadingModal({
+                    title: 'การเชื่อมต่อไม่เสถียร... กำลังเชื่อมต่ออีกครั้ง...',
+                    status: true
+                })
                 break
 
             case 2:
@@ -95,7 +101,10 @@ function Home(props) {
     }
 
     function reconnect() {
-        swalCustomize.close()
+        setLoadingModal({
+            ...loadingModal,
+            status: false
+        })
         setConnectionIsLost(2)
     }
 
@@ -107,6 +116,7 @@ function Home(props) {
             <MainRow>
                 <AwardsResult data={awardsList} setclass={secondCardClass} />
             </MainRow>
+            <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
         </MainContainer>
     )
 }
