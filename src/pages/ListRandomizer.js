@@ -369,7 +369,15 @@ function ListRandomizer(props) {
                         </Card>
                     </CardShield>
                 </Col>
-                <AwardsResult data={awardsList} setclass={thirdCardClass} display="split" isAbleToDisqualified={true} disqualificationCallBack={disqualification} />
+                <AwardsResult
+                    data={awardsList}
+                    setclass={thirdCardClass}
+                    display="split"
+                    
+                    // comments 2 line below to disable disqualification function
+                    isAbleToDisqualified={true}
+                    disqualificationCallBack={disqualification}
+                />
             </MainRow>
             <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
         </MainContainer>
