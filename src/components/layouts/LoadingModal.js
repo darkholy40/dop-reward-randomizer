@@ -29,6 +29,7 @@ const Container = styled.div`
 const Content = styled.p`
     font-size: 1.25rem;
     font-weight: 500;
+    text-align: center;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
 `

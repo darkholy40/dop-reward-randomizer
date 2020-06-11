@@ -4,7 +4,6 @@ import axios from 'axios'
 import styled from 'styled-components'
 import {
     Button,
-    Row,
     Col,
     message,
     notification
@@ -27,15 +26,24 @@ const Label = styled.p`
     border-bottom: 1px solid ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'};
 `
 
+const PersonsRemainNotice = styled.p`
+    text-align: left;
+    font-size: 0.75rem;
+    margin-bottom: 1.5rem;
+`
+
 const PersonsAmountBlock = styled.div`
-    margin-top: 1.5rem;
+    border: 1px solid #aaa;
+    border-radius: 3px;
     margin-bottom: 1.5rem;
 
     div {
         height: 300px;
+        min-height: 100px;
         overflow: auto;
         text-align: left;
-        margin: 0 5rem;
+        padding: 0 5rem;
+        resize: vertical;
 
         p {
             margin: 0;
@@ -46,7 +54,7 @@ const PersonsAmountBlock = styled.div`
         }
         
         @media (max-width: 991px) {
-            margin: 0;
+            padding: 0;
 
             p {
                 white-space: nowrap;
@@ -55,12 +63,6 @@ const PersonsAmountBlock = styled.div`
             }
         }
     }
-`
-
-const ButtonContainer = styled(Row)`
-    text-align: center;
-    display: ${props => props.display || 'none'};
-    ${props => props.hasmarginbottom && 'margin-bottom: 15px;'}
 `
 
 const NoMoreRandomizing = styled.div`
@@ -318,6 +320,9 @@ function ListRandomizer(props) {
                     <CardShield className={secondCardClass}>
                         <Card>
                             <Label theme={props.theme}>จำนวนกำลังพลของ กพ.ทบ. (ทั้งหมด {personsList.max} นาย)</Label>
+                            <PersonsRemainNotice>
+                                ยอดคงเหลือที่สามารถถูกสุ่มจับรางวัล: {personsList.remain} นาย
+                            </PersonsRemainNotice>
                             <PersonsAmountBlock>
                                 <div>
                                     {Object.keys(personsList).length > 0 && personsList.data.all.map((person, personIndex) => {
@@ -329,22 +334,20 @@ function ListRandomizer(props) {
                                     })}
                                 </div>
                             </PersonsAmountBlock>
-                            <ButtonContainer display="block">
-                                <Col xs={24} className="animated fadeIn">
-                                    <Button
-                                        onClick={() => startButtonHandleClick(1500)}
-                                        size='large'
-                                        type='primary'
-                                        icon={startBtnIcon}
-                                        disabled={personsList.remain === 0 || awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
-                                    >
-                                        สุ่มจับรางวัล
-                                    </Button>
-                                </Col>
-                            </ButtonContainer>
+                            <Col xs={24}>
+                                <Button
+                                    onClick={() => startButtonHandleClick(1500)}
+                                    size='large'
+                                    type='primary'
+                                    icon={startBtnIcon}
+                                    disabled={Object.keys(personsList).length === 0 || personsList.remain === 0 || awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
+                                >
+                                    สุ่มจับรางวัล
+                                </Button>
+                            </Col>
                             {personsList.remain === 0 &&
                             <NoMoreRandomizing theme={props.theme}>
-                                <span>ฉลากหมดแล้ว</span>
+                                <span>รายชื่อทั้งหมด ถูกจับฉลากแล้ว</span>
                             </NoMoreRandomizing>
                             }
                         </Card>
