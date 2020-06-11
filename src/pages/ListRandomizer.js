@@ -33,7 +33,7 @@ const PersonsRemainNotice = styled.p`
 `
 
 const PersonsAmountBlock = styled.div`
-    border: 1px solid #aaa;
+    border: 1px solid ${props => props.theme === 'sun' ? "#cccccc" : "#696969"};
     border-radius: 3px;
     margin-bottom: 1.5rem;
 
@@ -339,7 +339,7 @@ function ListRandomizer(props) {
                             <PersonsRemainNotice>
                                 ยอดคงเหลือที่สามารถถูกสุ่มจับรางวัล: {personsList.remain} นาย
                             </PersonsRemainNotice>
-                            <PersonsAmountBlock>
+                            <PersonsAmountBlock theme={props.theme}>
                                 <div>
                                     {Object.keys(personsList).length > 0 && personsList.data.all.map((person, personIndex) => {
                                         return (
