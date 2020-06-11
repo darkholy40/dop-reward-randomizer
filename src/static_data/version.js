@@ -1,5 +1,19 @@
 const version = [
     {
+        title: 'Version 1.3.0 (Jun 11th, 2020)',
+        content: [
+            '[Add] added notification when persons list was not found from of database',
+            '[Edit] changed loading sweetalert to loading modal instead // because some browsers cannot display the sweetalert lib',
+            '[Add] added LoadingModal component',
+            '[Remove] removed LoadingSwal component',
+            '[Improve] improved some functions',
+            '[Add] added condition when there was no any recieve data -> the randomize button would be disabled',
+            '[Edit] improved layout on loading modal',
+            '[Add] added disqualification process on Randomizer and AwardsResult component',
+            '[Improve] code refactoring'
+        ]
+    },
+    {
         title: 'Version 1.2.0 (Jun 10th, 2020)',
         content: [
             '[Improve] code refactoring'
@@ -15,7 +29,7 @@ const version = [
     {
         title: 'Version 1.1.0 (Jun 9th, 2020)',
         content: [
-            '[Add] added reconnect() for connecting to database when the internet is unstable',
+            '[Add] added reconnect() for connecting to database when the internet was unstable',
         ]
     },
     {
