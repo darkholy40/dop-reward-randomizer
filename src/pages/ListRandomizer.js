@@ -66,6 +66,7 @@ const PersonsAmountBlock = styled.div`
 `
 
 const NoMoreRandomizing = styled.div`
+    display: inline-block
     margin-top: 1rem;
 
     span {
@@ -260,25 +261,40 @@ function ListRandomizer(props) {
         })
     }
 
-    function swapListItems() {
-        let listItemsSize = listItems.length // array length
-        let characters = []
-        let swappedItems = []
-        
-        for(let i=0; i<listItemsSize; i++) {
-            characters = [...characters, i]
-        }
-        
-        for(let i=0; i<listItemsSize; i++) {
-            let charactersLength = characters.length // array length
-            let randomizedIndex = i === 0 ? Math.floor(Math.random() * (charactersLength-1)) + 1 : characters[Math.floor(Math.random()*charactersLength)]
-
-            characters = characters.filter(item => randomizedIndex !== item)
-            swappedItems = [...swappedItems, listItems[randomizedIndex]]
-        }
-
-        setListItems(swappedItems)
+    function disqualification(getAwardId, getPersonId) {
+        axios.post(`${props.url}/save/disqualification`, {
+            awardId: getAwardId,
+            personId: getPersonId
+        })
+        .then(res => {
+            // console.log(res.data)
+            fetchData()
+            successMessage("ตัดสิทธิ์กำลังพลสำเร็จ")
+        })
+        .catch((err) => {
+            console.log(err)
+        })
     }
+
+    // function swapListItems() {
+    //     let listItemsSize = listItems.length // array length
+    //     let characters = []
+    //     let swappedItems = []
+        
+    //     for(let i=0; i<listItemsSize; i++) {
+    //         characters = [...characters, i]
+    //     }
+        
+    //     for(let i=0; i<listItemsSize; i++) {
+    //         let charactersLength = characters.length // array length
+    //         let randomizedIndex = i === 0 ? Math.floor(Math.random() * (charactersLength-1)) + 1 : characters[Math.floor(Math.random()*charactersLength)]
+
+    //         characters = characters.filter(item => randomizedIndex !== item)
+    //         swappedItems = [...swappedItems, listItems[randomizedIndex]]
+    //     }
+
+    //     setListItems(swappedItems)
+    // }
 
     function startButtonHandleClick(time) {
         setStartBtnIcon('loading')
@@ -353,7 +369,7 @@ function ListRandomizer(props) {
                         </Card>
                     </CardShield>
                 </Col>
-                <AwardsResult data={awardsList} setclass={thirdCardClass} display="split" />
+                <AwardsResult data={awardsList} setclass={thirdCardClass} display="split" isAbleToDisqualified={true} disqualificationCallBack={disqualification} />
             </MainRow>
             <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
         </MainContainer>
