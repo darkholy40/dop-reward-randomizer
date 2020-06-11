@@ -4,20 +4,18 @@ import axios from 'axios'
 import styled from 'styled-components'
 import {
     Button,
-    Row,
     Col,
     message,
     notification
 } from 'antd'
 import 'antd/dist/antd.min.css'
-import swalCustomize from '@sweetalert/with-react'
 import useInterval from '../components/functions/useInterval'
 
 import MainContainer from '../components/layouts/MainContainer'
 import MainRow from '../components/layouts/MainRow'
 import CardShield from '../components/layouts/CardShield'
 import Card from '../components/layouts/Card'
-import LoadingSwal from '../components/layouts/LoadingSwal'
+import LoadingModal from '../components/layouts/LoadingModal'
 
 import NextAward from '../components/coop/NextAward'
 import AwardsResult from '../components/coop/AwardsResult'
@@ -28,15 +26,24 @@ const Label = styled.p`
     border-bottom: 1px solid ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'};
 `
 
+const PersonsRemainNotice = styled.p`
+    text-align: left;
+    font-size: 0.75rem;
+    margin-bottom: 1.5rem;
+`
+
 const PersonsAmountBlock = styled.div`
-    margin-top: 1.5rem;
+    border: 1px solid ${props => props.theme === 'sun' ? "#cccccc" : "#696969"};
+    border-radius: 3px;
     margin-bottom: 1.5rem;
 
     div {
         height: 300px;
+        min-height: 100px;
         overflow: auto;
         text-align: left;
-        margin: 0 5rem;
+        padding: 0 5rem;
+        resize: vertical;
 
         p {
             margin: 0;
@@ -47,7 +54,7 @@ const PersonsAmountBlock = styled.div`
         }
         
         @media (max-width: 991px) {
-            margin: 0;
+            padding: 0;
 
             p {
                 white-space: nowrap;
@@ -58,10 +65,19 @@ const PersonsAmountBlock = styled.div`
     }
 `
 
-const ButtonContainer = styled(Row)`
-    text-align: center;
-    display: ${props => props.display || 'none'};
-    ${props => props.hasmarginbottom && 'margin-bottom: 15px;'}
+const NoMoreRandomizing = styled.div`
+    display: inline-block
+    margin-top: 1rem;
+
+    span {
+        font-size: 1.25rem;
+        padding: 0 0.5rem;
+        animation-duration: 2s;
+        animation-name: ${props => props.theme === 'sun' ? 'highlight-red-day' : 'highlight-red-night'};
+        animation-delay: 0;
+        animation-iteration-count: infinite;
+        animation-direction: forward;
+    }
 `
 
 function mapStateToProps(state) {
@@ -80,6 +96,10 @@ function ListRandomizer(props) {
     const [personsList, setPersonsList] = useState({})
     const [awardsList, setAwardsList] = useState({})
     const [connectionIsLost, setConnectionIsLost] = useState(0)
+    const [loadingModal, setLoadingModal] = useState({
+        title: '',
+        status: false
+    })
 
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
@@ -115,7 +135,10 @@ function ListRandomizer(props) {
 
     useEffect(() => {
         if(percent === 100) {
-            swalCustomize.close()
+            setLoadingModal({
+                ...loadingModal,
+                status: false
+            })
             successMessage("สุ่มรายชื่อกำลังพลสำเร็จ")
         }
     }, [percent])
@@ -123,7 +146,10 @@ function ListRandomizer(props) {
     useEffect(() => {
         switch (connectionIsLost) {
             case 1:
-                LoadingSwal("การเชื่อมต่อไม่เสถียร... กำลังเชื่อมต่ออีกครั้ง...", props.theme)
+                setLoadingModal({
+                    title: 'การเชื่อมต่อไม่เสถียร... กำลังเชื่อมต่ออีกครั้ง...',
+                    status: true
+                })
                 setStartBtnIcon(initialState('startBtnIcon'))
                 break
 
@@ -143,6 +169,22 @@ function ListRandomizer(props) {
     useInterval(() => {
         fetchData()
     }, 1000)
+
+    function initialState(stateName) {
+        switch (stateName) {
+            case 'listItems':
+                return []
+
+            case 'startBtnIcon':
+                return 'caret-right'
+
+            case 'percent':
+                return 0
+
+            default:
+                break
+        }
+    }
 
     function getPersonsAndAwardsList() {
         // ดึกข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
@@ -192,7 +234,10 @@ function ListRandomizer(props) {
     }
 
     function reconnect() {
-        swalCustomize.close()
+        setLoadingModal({
+            ...loadingModal,
+            status: false
+        })
         setConnectionIsLost(2)
     }
 
@@ -216,47 +261,49 @@ function ListRandomizer(props) {
         })
     }
 
-    function initialState(stateName) {
-        switch (stateName) {
-            case 'listItems':
-                return []
-
-            case 'startBtnIcon':
-                return 'caret-right'
-
-            case 'percent':
-                return 0
-
-            default:
-                break
-        }
+    function disqualification(getAwardId, getPersonId) {
+        axios.post(`${props.url}/save/disqualification`, {
+            awardId: getAwardId,
+            personId: getPersonId
+        })
+        .then(res => {
+            // console.log(res.data)
+            fetchData()
+            successMessage("ตัดสิทธิ์กำลังพลสำเร็จ")
+        })
+        .catch((err) => {
+            console.log(err)
+        })
     }
 
-    function swapListItems() {
-        let listItemsSize = listItems.length // array length
-        let characters = []
-        let swappedItems = []
+    // function swapListItems() {
+    //     let listItemsSize = listItems.length // array length
+    //     let characters = []
+    //     let swappedItems = []
         
-        for(let i=0; i<listItemsSize; i++) {
-            characters = [...characters, i]
-        }
+    //     for(let i=0; i<listItemsSize; i++) {
+    //         characters = [...characters, i]
+    //     }
         
-        for(let i=0; i<listItemsSize; i++) {
-            let charactersLength = characters.length // array length
-            let randomizedIndex = i === 0 ? Math.floor(Math.random() * (charactersLength-1)) + 1 : characters[Math.floor(Math.random()*charactersLength)]
+    //     for(let i=0; i<listItemsSize; i++) {
+    //         let charactersLength = characters.length // array length
+    //         let randomizedIndex = i === 0 ? Math.floor(Math.random() * (charactersLength-1)) + 1 : characters[Math.floor(Math.random()*charactersLength)]
 
-            characters = characters.filter(item => randomizedIndex !== item)
-            swappedItems = [...swappedItems, listItems[randomizedIndex]]
-        }
+    //         characters = characters.filter(item => randomizedIndex !== item)
+    //         swappedItems = [...swappedItems, listItems[randomizedIndex]]
+    //     }
 
-        setListItems(swappedItems)
-    }
+    //     setListItems(swappedItems)
+    // }
 
     function startButtonHandleClick(time) {
         setStartBtnIcon('loading')
         setPercent(initialState('percent'))
 
-        LoadingSwal("กำลังสุ่มรายชื่อ...", props.theme)
+        setLoadingModal({
+            title: 'กำลังสุ่มรายชื่อ...',
+            status: true
+        })
 
         setTimeout(() => {
             goRandomize()
@@ -289,7 +336,10 @@ function ListRandomizer(props) {
                     <CardShield className={secondCardClass}>
                         <Card>
                             <Label theme={props.theme}>จำนวนกำลังพลของ กพ.ทบ. (ทั้งหมด {personsList.max} นาย)</Label>
-                            <PersonsAmountBlock>
+                            <PersonsRemainNotice>
+                                ยอดคงเหลือที่สามารถถูกสุ่มจับรางวัล: {personsList.remain} นาย
+                            </PersonsRemainNotice>
+                            <PersonsAmountBlock theme={props.theme}>
                                 <div>
                                     {Object.keys(personsList).length > 0 && personsList.data.all.map((person, personIndex) => {
                                         return (
@@ -300,24 +350,36 @@ function ListRandomizer(props) {
                                     })}
                                 </div>
                             </PersonsAmountBlock>
-                            <ButtonContainer display="block">
-                                <Col xs={24} className="animated fadeIn">
-                                    <Button
-                                        onClick={() => startButtonHandleClick(1500)}
-                                        size='large'
-                                        type='primary'
-                                        icon={startBtnIcon}
-                                        disabled={awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
-                                    >
-                                        สุ่มจับรางวัล
-                                    </Button>
-                                </Col>
-                            </ButtonContainer>
+                            <Col xs={24}>
+                                <Button
+                                    onClick={() => startButtonHandleClick(1500)}
+                                    size='large'
+                                    type='primary'
+                                    icon={startBtnIcon}
+                                    disabled={Object.keys(personsList).length === 0 || personsList.remain === 0 || awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
+                                >
+                                    สุ่มจับรางวัล
+                                </Button>
+                            </Col>
+                            {personsList.remain === 0 &&
+                            <NoMoreRandomizing theme={props.theme}>
+                                <span>รายชื่อทั้งหมด ถูกจับฉลากแล้ว</span>
+                            </NoMoreRandomizing>
+                            }
                         </Card>
                     </CardShield>
                 </Col>
-                <AwardsResult data={awardsList} setclass={thirdCardClass} display="split" />
+                <AwardsResult
+                    data={awardsList}
+                    setclass={thirdCardClass}
+                    display="split"
+                    
+                    // comments 2 line below to disable disqualification function
+                    isAbleToDisqualified={true}
+                    disqualificationCallBack={disqualification}
+                />
             </MainRow>
+            <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
         </MainContainer>
     )
 }

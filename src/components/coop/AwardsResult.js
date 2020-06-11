@@ -2,7 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import {
-    Col
+    Col,
+    Popconfirm
 } from 'antd'
 
 import CardShield from '../layouts/CardShield'
@@ -37,6 +38,10 @@ const Block = styled.div`
         span.right {
             width: 60%;
             margin-left: 0.5rem;
+            ${props => props.isAbleToDisqualified && `
+                display: flex;
+                justify-content: space-between;
+            `}
 
             span.first-picked-up {
                 animation-duration: 2s;
@@ -46,6 +51,25 @@ const Block = styled.div`
                 animation-direction: forward;
             }
         }
+    }
+`
+
+const DisqualifyButton = styled.span`
+    min-width: 45px;
+    -webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+    cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-decoration: underline;
+    color: #ff4d4f;
+    transition: 0.3s;
+
+    &:hover {
+        color: #ff7875;
     }
 `
 
@@ -74,13 +98,25 @@ function AwardsResult(props) {
                     <ListItemsNotificationText display={awardsList.remain === awardsList.max ? 'block' : 'none'} theme={props.theme}>
                         ยังไม่ทำการจับรางวัล
                     </ListItemsNotificationText>
-                    <Block theme={props.theme}>
+                    <Block theme={props.theme} isAbleToDisqualified={props.isAbleToDisqualified}>
                         {Object.keys(awardsList).length > 0 && awardsList.data.persons_whom_are_picked_up.map((pickedupPerson, pickedupPersonIndex) => {
                             return (
                                 <p key={pickedupPersonIndex}>
-                                    <span className="left">{pickedupPerson.name}</span>
+                                    <span className="left">{pickedupPerson.award_name}</span>
                                     <span className="right">
-                                        <span className={pickedupPersonIndex === 0 ? "first-picked-up" : ""}>{pickedupPerson.fullname}</span>
+                                        <span className={pickedupPersonIndex === 0 ? "first-picked-up" : ""}>{pickedupPerson.person_fullname}</span>
+                                        {props.isAbleToDisqualified &&
+                                        <Popconfirm
+                                            placement="bottomRight"
+                                            title="ท่านกำลังตัดสิทธิ์กำลังพลรายนี้ออกจากรายการรับรางวัล?"
+                                            onConfirm={() => props.disqualificationCallBack(pickedupPerson.award_id, pickedupPerson.person_id)}
+                                            okText="ตกลง"
+                                            okType="danger"
+                                            cancelText="ยกเลิก"
+                                        >
+                                            <DisqualifyButton>ตัดสิทธิ์</DisqualifyButton>
+                                        </Popconfirm>
+                                        }
                                     </span>
                                 </p>
                             )

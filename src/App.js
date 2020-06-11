@@ -9,7 +9,7 @@ import 'animate.css/animate.min.css'
 const myKeyframes = `
   @keyframes highlight-yellow-day {
     0% {
-      background-color: rgba(0, 0, 255, 1);background-color: rgba(255, 255, 0, 1);
+      background-color: rgba(255, 255, 0, 1);
     }
 
     50% {
@@ -65,7 +65,7 @@ const myKeyframes = `
 
   @keyframes highlight-blue-day {
     0% {
-      background-color: rgba(0,2550, 255, 1);
+      background-color: rgba(0, 255, 255, 1);
     }
 
     50% {
@@ -88,6 +88,34 @@ const myKeyframes = `
 
     100% {
       background-color: rgba(0, 255, 255, 0.5);
+    }
+  }
+
+  @keyframes highlight-red-day {
+    0% {
+      background-color: rgba(255, 0, 0, 1);
+    }
+
+    50% {
+      background-color: rgb(255, 255, 255);
+    }
+
+    100% {
+      background-color: rgba(255, 0, 0, 1);
+    }
+  }
+
+  @keyframes highlight-red-night {
+    0% {
+      background-color: rgba(255, 0, 0, 0.5);
+    }
+
+    50% {
+      background-color: rgb(45, 45, 45);
+    }
+
+    100% {
+      background-color: rgba(255, 0, 0, 0.5);
     }
   }
 `
