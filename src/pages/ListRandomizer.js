@@ -22,14 +22,23 @@ import AwardsResult from '../components/coop/AwardsResult'
 
 const Label = styled.p`
     text-align: left;
+    font-size: 1.5rem;
     font-weight: 500;
     border-bottom: 1px solid ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'};
+
+    @media (max-width: 767px) {
+        font-size: 1rem;
+    }
 `
 
 const PersonsRemainNotice = styled.p`
     text-align: left;
-    font-size: 0.75rem;
+    font-size: 1.25rem;
     margin-bottom: 1.5rem;
+
+    @media (max-width: 767px) {
+        font-size: 0.85rem;
+    }
 `
 
 const PersonsAmountBlock = styled.div`
@@ -46,6 +55,7 @@ const PersonsAmountBlock = styled.div`
         resize: vertical;
 
         p {
+            font-size: 1.25rem;
             margin: 0;
 
             &.is-picked-up {
@@ -57,6 +67,7 @@ const PersonsAmountBlock = styled.div`
             padding: 0;
 
             p {
+                font-size: 0.85rem;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;

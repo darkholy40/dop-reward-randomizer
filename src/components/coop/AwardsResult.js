@@ -21,8 +21,13 @@ const StyledCard = styled(Card)`
 
 const Label = styled.p`
     text-align: left;
+    font-size: 1.5rem;
     font-weight: 500;
     border-bottom: 1px solid ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'};
+
+    @media (max-width: 767px) {
+        font-size: 1rem;
+    }
 `
 
 const Block = styled.div`
@@ -30,6 +35,7 @@ const Block = styled.div`
 
     p {
         display: flex;
+        font-size: 1.25rem;
         
         span.left {
             width: 40%;
@@ -52,10 +58,16 @@ const Block = styled.div`
             }
         }
     }
+
+    @media (max-width: 767px) {
+        p {
+            font-size: 0.85rem;
+        }
+    }
 `
 
 const DisqualifyButton = styled.span`
-    min-width: 45px;
+    min-width: 65px;
     -webkit-user-select: none; /* Safari 3.1+ */
     -moz-user-select: none; /* Firefox 2+ */
     -ms-user-select: none; /* IE 10+ */
@@ -71,15 +83,23 @@ const DisqualifyButton = styled.span`
     &:hover {
         color: #ff7875;
     }
+
+    @media (max-width: 767px) {
+        min-width: 45px;
+    }
 `
 
 const ListItemsNotificationText = styled.p`
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 1.25rem;
     color: ${props => props.theme === 'sun' ? 'rgba(0, 0, 0, 0.3)' : 'rgb(175, 175, 175)'};
     margin: 0;
     display: ${props => props.display || 'none'};
     transition: 0.3s;
+
+    @media (max-width: 767px) {
+        font-size: 1rem;
+    }
 `
 
 function mapStateToProps(state) {

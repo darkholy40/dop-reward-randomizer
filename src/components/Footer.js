@@ -43,11 +43,16 @@ const ProfileImageBlock = styled.div`
 `
 
 const ProfileImage = styled.img`
-    max-width: 6rem;
-    max-height: 6rem;
+    max-width: 8.5rem;
+    max-height: 8.5rem;
 
     &:hover {
         opacity: 0.9;
+    }
+
+    @media (max-width: 767px) {
+        max-width: 6rem;
+        max-height: 6rem;
     }
 `
 
@@ -134,7 +139,7 @@ const ModalImage = styled.img`
 `
 
 const FooterContent = styled.span`
-    font-size: 0.85rem;
+    font-size: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -158,7 +163,7 @@ const TopContainer = styled(Row)`
 `
 
 const FooterTimeString = styled.span`
-    font-size: 0.85rem;
+    font-size: 1rem;
     cursor: pointer;
     padding: 5px;
 

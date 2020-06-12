@@ -14,11 +14,12 @@ const Block = styled.div`
     justify-content: space-between;
 
     p.block {
+        font-size: 1.5rem;
         margin: 0;
     }
 
     span.next-award {
-        font-size: 1.5rem;
+        font-size: 2rem;
         padding: 0 0.5rem;
         animation-duration: 2s;
         animation-name: ${props => props.theme === 'sun' ? 'highlight-yellow-day' : 'highlight-yellow-night'};
@@ -28,7 +29,7 @@ const Block = styled.div`
     }
 
     span.remain-awards {
-        font-size: 1.5rem;
+        font-size: 2rem;
         padding: 0 0.5rem;
         animation-duration: 2s;
         animation-name: ${props => props.theme === 'sun' ? 'highlight-blue-day' : 'highlight-blue-night'};
@@ -43,6 +44,15 @@ const Block = styled.div`
 
     @media (max-width: 767px) {
         flex-direction: column;
+
+        p.block {
+            font-size: 1rem;
+        }
+
+        span.next-award,
+        span.remain-awards {
+            font-size: 1.5rem;
+        }
 
         .dummy {
             display: none;
@@ -63,7 +73,9 @@ function NextAward(props) {
             <Block theme={props.theme}>
                 <CardShield className="dummy">
                     <Card>
-                        จำนวนรางวัลคงเหลือ: {awardsList.remain}
+                        <p className="block">
+                            จำนวนรางวัลคงเหลือ: {awardsList.remain}
+                        </p>
                     </Card>
                 </CardShield>
                 <CardShield className={cardClass}>
@@ -84,12 +96,14 @@ function NextAward(props) {
                 </CardShield>
                 <CardShield className={Object.keys(awardsList).length > 0 ? cardClass : "dummy"}>
                     <Card>
-                    {Object.keys(awardsList).length > 0
-                        ?
-                            <>จำนวนรางวัลคงเหลือ: <span className="remain-awards">{awardsList.remain}</span></>
-                        :
-                            <span>ไม่สามารถอ่านข้อมูลได้</span>
-                    }
+                        <p className="block">
+                        {Object.keys(awardsList).length > 0
+                            ?
+                                <>จำนวนรางวัลคงเหลือ: <span className="remain-awards">{awardsList.remain}</span></>
+                            :
+                                <span>ไม่สามารถอ่านข้อมูลได้</span>
+                        }
+                        </p>
                     </Card>
                 </CardShield>
             </Block>
