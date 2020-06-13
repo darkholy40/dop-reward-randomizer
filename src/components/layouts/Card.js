@@ -7,7 +7,7 @@ function mapStateToProps(state) {
 
 const Card = styled.div`
     position: relative;
-    padding: 30px 15px;
+    padding: 20px 15px;
     border-radius: 5px;
     background-color: ${props => props.theme === 'sun' ? 'rgb(255, 255, 255)' : 'rgb(45, 45, 45)'};
     color: ${props => props.theme === 'sun' ? 'rgb(0, 0, 0)' : 'rgb(225, 225, 225)'};
