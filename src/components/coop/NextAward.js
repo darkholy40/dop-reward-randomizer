@@ -38,6 +38,13 @@ const Block = styled.div`
         animation-direction: forward;
     }
 
+    span.award-type {
+        display: block;
+        margin-top: 0.5rem;
+        color: ${props => props.theme === 'sun' ? 'rgb(56, 142, 60)' : 'rgb(165, 214, 167)'};
+        transition: 0.3s;
+    }
+
     .dummy {
         opacity: 0;
     }
@@ -68,45 +75,69 @@ function NextAward(props) {
     const awardsList = props.data || {}
     const cardClass = props.setclass || {}
 
+    function displayAwardType(value) {
+        switch (value) {
+            case 'high':
+                return 'ชั้นสัญญาบัตร'
+
+            case 'normal':
+                return 'ชั้นต่ำกว่าสัญญาบัตร'
+
+            case 'all':
+                return 'รางวัลใหญ่'
+        
+            default:
+                break
+        }
+    }
+
     return (
         <Col xs={24}>
+            {Object.keys(awardsList).length > 0 ?
             <Block theme={props.theme}>
                 <CardShield className="dummy">
                     <Card>
                         <p className="block">
-                            จำนวนรางวัลคงเหลือ: {awardsList.remain}
+                            จำนวนรางวัลคงเหลือ: {awardsList.amount.awards_remain}
                         </p>
                     </Card>
                 </CardShield>
                 <CardShield className={cardClass}>
                     <Card>
                         <p className="block">
-                            {Object.keys(awardsList).length > 0
+                            {awardsList.amount.awards_remain > 0
                             ?
-                                awardsList.remain > 0
-                                ?
-                                <>รางวัลรายการถัดไป: <span className="next-award">{awardsList.data.awards_remain[0].name}</span></>
-                                :
-                                <span className="next-award">จับรางวัลหมดแล้ว</span>
+                            <span>
+                                รางวัลรายการถัดไป: <span className="next-award">{awardsList.data.awards_remain[0].name}</span>
+                                <br />
+                                <span className="award-type">{displayAwardType(awardsList.data.awards_remain[0].type)}</span>
+                            </span>
                             :
-                                <span>ไม่สามารถอ่านข้อมูลได้</span>
-                            }
+                            <span className="next-award">จับรางวัลหมดแล้ว</span>}
                         </p>
                     </Card>
                 </CardShield>
-                <CardShield className={Object.keys(awardsList).length > 0 ? cardClass : "dummy"}>
+                <CardShield className={cardClass}>
                     <Card>
                         <p className="block">
-                        {Object.keys(awardsList).length > 0
-                            ?
-                                <>จำนวนรางวัลคงเหลือ: <span className="remain-awards">{awardsList.remain}</span></>
-                            :
-                                <span>ไม่สามารถอ่านข้อมูลได้</span>
-                        }
+                            จำนวนรางวัลคงเหลือ: <span className="remain-awards">{awardsList.amount.awards_remain}</span>
                         </p>
                     </Card>
                 </CardShield>
             </Block>
+            :
+            <Block theme={props.theme}>
+                <CardShield className="dummy" />
+                <CardShield className={cardClass}>
+                    <Card>
+                        <p className="block">
+                            <span>ไม่พบข้อมูลหรือไม่สามารถอ่านข้อมูลจากเซิร์ฟเวอร์ได้</span>
+                        </p>
+                    </Card>
+                </CardShield>
+                <CardShield className="dummy" />
+            </Block>
+            }
         </Col>
     )
 }

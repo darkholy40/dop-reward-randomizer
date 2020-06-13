@@ -8,6 +8,7 @@ import {
 
 import CardShield from '../layouts/CardShield'
 import Card from '../layouts/Card'
+import DataNotFound from './DataNotFound'
 
 const StyledCardShield = styled(CardShield)`
     display: flex;
@@ -111,40 +112,82 @@ function AwardsResult(props) {
     const cardClass = props.setclass || {}
 
     return (
-        <Col md={props.display === "split" ? 12 : 24} sm={24}>
-            <StyledCardShield className={cardClass}>
-                <StyledCard theme={props.theme}>
-                    <Label theme={props.theme}>ผลการจับรางวัล</Label>
-                    <ListItemsNotificationText display={awardsList.remain === awardsList.max ? 'block' : 'none'} theme={props.theme}>
-                        ยังไม่ทำการจับรางวัล
-                    </ListItemsNotificationText>
-                    <Block theme={props.theme} isAbleToDisqualified={props.isAbleToDisqualified}>
-                        {Object.keys(awardsList).length > 0 && awardsList.data.persons_whom_are_picked_up.map((pickedupPerson, pickedupPersonIndex) => {
-                            return (
-                                <p key={pickedupPersonIndex}>
-                                    <span className="left">{pickedupPerson.award_name}</span>
-                                    <span className="right">
-                                        <span className={pickedupPersonIndex === 0 ? "first-picked-up" : ""}>{pickedupPerson.person_fullname}</span>
-                                        {props.isAbleToDisqualified &&
-                                        <Popconfirm
-                                            placement="bottomRight"
-                                            title="ท่านกำลังตัดสิทธิ์กำลังพลรายนี้ออกจากรายการรับรางวัล?"
-                                            onConfirm={() => props.disqualificationCallBack(pickedupPerson.award_id, pickedupPerson.person_id)}
-                                            okText="ตกลง"
-                                            okType="danger"
-                                            cancelText="ยกเลิก"
-                                        >
-                                            <DisqualifyButton>ตัดสิทธิ์</DisqualifyButton>
-                                        </Popconfirm>
-                                        }
-                                    </span>
-                                </p>
-                            )
-                        })}
-                    </Block>
-                </StyledCard>
-            </StyledCardShield>
-        </Col>
+        <>
+            {Object.keys(awardsList).length > 0
+            ?
+            <Col md={props.display === "split" ? 12 : 24} sm={24}>
+                <StyledCardShield className={cardClass}>
+                    <StyledCard theme={props.theme}>
+                        <Label theme={props.theme}>ผลการจับรางวัลใหญ่</Label>
+                        <ListItemsNotificationText display={awardsList.amount.awards_remain === awardsList.amount.big_awards_max ? 'block' : 'none'} theme={props.theme}>
+                            ยังไม่ทำการจับรางวัล
+                        </ListItemsNotificationText>
+                        <Block theme={props.theme} isAbleToDisqualified={props.isAbleToDisqualified}>
+                            {awardsList.data.big_awards_result.map((bigAwardPerson, bigAwardPersonIndex) => {
+                                return (
+                                    <p key={bigAwardPersonIndex}>
+                                        <span className="left">{bigAwardPerson.award_name}</span>
+                                        <span className="right">
+                                            <span className={bigAwardPersonIndex === 0 ? "first-picked-up" : ""}>{bigAwardPerson.person_fullname}</span>
+                                            {props.isAbleToDisqualified &&
+                                            <Popconfirm
+                                                placement="bottomRight"
+                                                title="ท่านกำลังตัดสิทธิ์กำลังพลรายนี้ออกจากรายการรับรางวัล?"
+                                                onConfirm={() => props.disqualificationCallBack(bigAwardPerson.award_id_bonus, bigAwardPerson.person_id, 'bonus')}
+                                                okText="ตกลง"
+                                                okType="danger"
+                                                cancelText="ยกเลิก"
+                                            >
+                                                <DisqualifyButton>ตัดสิทธิ์</DisqualifyButton>
+                                            </Popconfirm>
+                                            }
+                                        </span>
+                                    </p>
+                                )
+                            })}
+                        </Block>
+                    </StyledCard>
+                </StyledCardShield>
+
+                <StyledCardShield className={cardClass}>
+                    <StyledCard theme={props.theme}>
+                        <Label theme={props.theme}>ผลการจับรางวัล</Label>
+                        <ListItemsNotificationText display={awardsList.amount.awards_remain === awardsList.amount.awards_max ? 'block' : 'none'} theme={props.theme}>
+                            ยังไม่ทำการจับรางวัล
+                        </ListItemsNotificationText>
+                        <Block theme={props.theme} isAbleToDisqualified={props.isAbleToDisqualified}>
+                            {awardsList.data.awards_result.map((pickedupPerson, pickedupPersonIndex) => {
+                                return (
+                                    <p key={pickedupPersonIndex}>
+                                        <span className="left">{pickedupPerson.award_name}</span>
+                                        <span className="right">
+                                            <span className={pickedupPersonIndex === 0 ? "first-picked-up" : ""}>{pickedupPerson.person_fullname}</span>
+                                            {props.isAbleToDisqualified &&
+                                            <Popconfirm
+                                                placement="bottomRight"
+                                                title="ท่านกำลังตัดสิทธิ์กำลังพลรายนี้ออกจากรายการรับรางวัล?"
+                                                onConfirm={() => props.disqualificationCallBack(pickedupPerson.award_id, pickedupPerson.person_id)}
+                                                okText="ตกลง"
+                                                okType="danger"
+                                                cancelText="ยกเลิก"
+                                            >
+                                                <DisqualifyButton>ตัดสิทธิ์</DisqualifyButton>
+                                            </Popconfirm>
+                                            }
+                                        </span>
+                                    </p>
+                                )
+                            })}
+                        </Block>
+                    </StyledCard>
+                </StyledCardShield>
+            </Col>
+            :
+            <Col md={props.display === "split" ? 12 : 24} sm={24}>
+                <DataNotFound />
+            </Col>
+            }
+        </>
     )
 }
 

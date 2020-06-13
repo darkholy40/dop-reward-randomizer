@@ -9,6 +9,11 @@ const CardShield = styled.div`
         opacity: 0;
     }
 
+    &.disappeared {
+        opacity: 0;
+        display: none;
+    }
+
     @media (max-width: 767px) {
         padding: 0;
     }

@@ -19,6 +19,7 @@ import LoadingModal from '../components/layouts/LoadingModal'
 
 import NextAward from '../components/coop/NextAward'
 import AwardsResult from '../components/coop/AwardsResult'
+import DataNotFound from '../components/coop/DataNotFound'
 
 const Label = styled.p`
     text-align: left;
@@ -47,7 +48,7 @@ const PersonsAmountBlock = styled.div`
     margin-bottom: 1.5rem;
 
     div {
-        height: 300px;
+        height: 100px;
         min-height: 100px;
         overflow: auto;
         text-align: left;
@@ -105,6 +106,8 @@ function ListRandomizer(props) {
 
     const [personsList, setPersonsList] = useState({})
     const [awardsList, setAwardsList] = useState({})
+    const [currentAwardType, setCurrentAwardType] = useState('all')
+    const [remainAwardsAmount, setRemainAwardsAmount] = useState(0)
     const [connectionIsLost, setConnectionIsLost] = useState(0)
     const [loadingModal, setLoadingModal] = useState({
         title: '',
@@ -113,8 +116,8 @@ function ListRandomizer(props) {
 
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
-        second: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInLeft",
-        third: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInRight"
+        second: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeIn",
+        third: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeIn"
     }
 
     useEffect(() => {
@@ -200,7 +203,7 @@ function ListRandomizer(props) {
             const response = res.data
             
             if(response.code === "00200") {
-                console.log(response.data)
+                // console.log(response.data)
                 setPersonsList(response.data)
 
                 if(connectionIsLost === 1) {
@@ -221,6 +224,11 @@ function ListRandomizer(props) {
             if(response.code === "00200") {
                 // console.log(response.data)
                 setAwardsList(response.data)
+                setRemainAwardsAmount(response.data.amount.awards_remain)
+                
+                if (response.data.data.awards_remain.length > 0) {
+                    setCurrentAwardType(response.data.data.awards_remain[0].type)
+                }
 
                 if(connectionIsLost === 1) {
                     reconnect()
@@ -245,7 +253,7 @@ function ListRandomizer(props) {
         setConnectionIsLost(2)
     }
 
-    function saveData(theChosenId) {
+    function saveAward(theChosenId) {
         const currentAwardId = awardsList.data.awards_remain[0].id
 
         // console.log(`the chosen: ${theChosenId}`)
@@ -265,10 +273,28 @@ function ListRandomizer(props) {
         })
     }
 
-    function disqualification(getAwardId, getPersonId) {
+    function saveBonusAward(theChosenId) {
+        const currentAwardId = awardsList.data.awards_remain[0].id
+
+        axios.post(`${props.url}/save/bonus-award`, {
+            bigAwardId: currentAwardId,
+            personId: theChosenId
+        })
+        .then(res => {
+            // console.log(res.data)
+            fetchData()
+            stopProcess()
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+    }
+
+    function disqualification(getAwardId, getPersonId, getOption) {
         axios.post(`${props.url}/save/disqualification`, {
             awardId: getAwardId,
-            personId: getPersonId
+            personId: getPersonId,
+            option: getOption
         })
         .then(res => {
             // console.log(res.data)
@@ -300,7 +326,7 @@ function ListRandomizer(props) {
     //     setListItems(swappedItems)
     // }
 
-    function startButtonHandleClick(Arraydata) {
+    function startButtonHandleClick(Arraydata, option) {
         setStartBtnIcon('loading')
         setPercent(initialState('percent'))
 
@@ -310,7 +336,11 @@ function ListRandomizer(props) {
         })
 
         setTimeout(() => {
-            goRandomize(Arraydata)
+            if(option === 'special') {
+                goRandomize(Arraydata, 'save-bonus-award')
+            } else {
+                goRandomize(Arraydata)
+            }            
         }, 1500)
     }
 
@@ -319,11 +349,15 @@ function ListRandomizer(props) {
         setPercent(100)
     }
 
-    function goRandomize(arrayData) {
+    function goRandomize(arrayData, option) {
         let listItemsSize = arrayData.length // array length
         let theChosen = arrayData[Math.floor(Math.random()*listItemsSize)]
 
-        saveData(theChosen.id)
+        if(option === 'save-bonus-award') {
+            saveBonusAward(theChosen.id)
+        } else {
+            saveAward(theChosen.id)
+        }
     }
 
     function successMessage(str) {
@@ -336,13 +370,15 @@ function ListRandomizer(props) {
                 <NextAward data={awardsList} setclass={firstCardClass} />
             </MainRow>
             <MainRow>
-                {Object.keys(personsList).length > 0 &&
+                {Object.keys(personsList).length > 0
+                ?
                 <Col md={12} sm={24}>
-                    <CardShield className={secondCardClass}>
+                    <CardShield className={currentAwardType === 'high' ? secondCardClass : 'disappeared'}>
                         <Card>
-                            <Label theme={props.theme}>จำนวนกำลังพลชั้นสัญญาบัตรของ กพ.ทบ. (ทั้งหมด {personsList.amount.high_max} นาย)</Label>
+                            <Label theme={props.theme}>จับรางวัลกำลังพลชั้นสัญญาบัตร</Label>
                             <PersonsRemainNotice>
-                                ยอดคงเหลือที่สามารถถูกสุ่มจับรางวัล: {personsList.amount.high_remain} นาย
+                                ทั้งหมด: {personsList.amount.high_max} นาย<br />
+                                คงเหลือ: {personsList.amount.high_remain} นาย
                             </PersonsRemainNotice>
                             <PersonsAmountBlock theme={props.theme}>
                                 <div>
@@ -361,7 +397,14 @@ function ListRandomizer(props) {
                                     size='large'
                                     type='primary'
                                     icon={startBtnIcon}
-                                    disabled={Object.keys(personsList).length === 0 || personsList.amount.high_remain === 0 || awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
+                                    disabled={
+                                        Object.keys(personsList).length === 0 ||
+                                        personsList.amount.high_remain === 0 ||
+                                        remainAwardsAmount === 0 ||
+                                        currentAwardType !== 'high' ||
+                                        startBtnIcon === 'loading' ||
+                                        connectionIsLost === 1
+                                    }
                                 >
                                     สุ่มจับรางวัล
                                 </Button>
@@ -374,11 +417,12 @@ function ListRandomizer(props) {
                         </Card>
                     </CardShield>
 
-                    <CardShield className={secondCardClass}>
+                    <CardShield className={currentAwardType === 'normal' ? secondCardClass : 'disappeared'}>
                         <Card>
-                            <Label theme={props.theme}>จำนวนกำลังพลชั้นต่ำกว่าสัญญาบัตรของ กพ.ทบ. (ทั้งหมด {personsList.amount.normal_max} นาย)</Label>
+                            <Label theme={props.theme}>จับรางวัลกำลังพลชั้นต่ำกว่าสัญญาบัตร</Label>
                             <PersonsRemainNotice>
-                                ยอดคงเหลือที่สามารถถูกสุ่มจับรางวัล: {personsList.amount.normal_remain} นาย
+                                ทั้งหมด: {personsList.amount.normal_max} นาย<br />
+                                คงเหลือ: {personsList.amount.normal_remain} นาย
                             </PersonsRemainNotice>
                             <PersonsAmountBlock theme={props.theme}>
                                 <div>
@@ -397,7 +441,14 @@ function ListRandomizer(props) {
                                     size='large'
                                     type='primary'
                                     icon={startBtnIcon}
-                                    disabled={Object.keys(personsList).length === 0 || personsList.amount.normal_remain === 0 || awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
+                                    disabled={
+                                        Object.keys(personsList).length === 0 ||
+                                        personsList.amount.normal_remain === 0 ||
+                                        remainAwardsAmount === 0 ||
+                                        currentAwardType !== 'normal' ||
+                                        startBtnIcon === 'loading' ||
+                                        connectionIsLost === 1
+                                    }
                                 >
                                     สุ่มจับรางวัล
                                 </Button>
@@ -409,6 +460,54 @@ function ListRandomizer(props) {
                             }
                         </Card>
                     </CardShield>
+
+                    <CardShield className={currentAwardType === 'all' ? secondCardClass : 'disappeared'}>
+                        <Card>
+                            <Label theme={props.theme}>จับรางวัลใหญ่</Label>
+                            <PersonsRemainNotice>
+                                ทั้งหมด: {personsList.amount.all_max} นาย<br />
+                                คงเหลือ: {personsList.amount.all_remain} นาย
+                            </PersonsRemainNotice>
+                            <PersonsAmountBlock theme={props.theme}>
+                                <div>
+                                    {Object.keys(personsList).length > 0 && personsList.data.all_max.map((person, personIndex) => {
+                                        return (
+                                            <p key={personIndex} className={person.is_picked_up_bonus > 0 ? "is-picked-up" : ""}>
+                                                {`${personIndex+1}.)`} {person.fullname}
+                                            </p>
+                                        )
+                                    })}
+                                </div>
+                            </PersonsAmountBlock>
+                            <Col xs={24}>
+                                <Button
+                                    onClick={() => startButtonHandleClick(personsList.data.all_remain, 'special')}
+                                    size='large'
+                                    type='primary'
+                                    icon={startBtnIcon}
+                                    disabled={
+                                        Object.keys(personsList).length === 0 ||
+                                        personsList.amount.all_remain === 0 ||
+                                        remainAwardsAmount === 0 ||
+                                        currentAwardType !== 'all' ||
+                                        startBtnIcon === 'loading' ||
+                                        connectionIsLost === 1
+                                    }
+                                >
+                                    สุ่มจับรางวัล
+                                </Button>
+                            </Col>
+                            {personsList.amount.all_remain === 0 &&
+                            <NoMoreRandomizing theme={props.theme}>
+                                <span>รายชื่อทั้งหมด ถูกจับฉลากแล้ว</span>
+                            </NoMoreRandomizing>
+                            }
+                        </Card>
+                    </CardShield>
+                </Col>
+                :
+                <Col md={12} sm={24}>
+                    <DataNotFound />
                 </Col>
                 }
                 <AwardsResult
