@@ -96,7 +96,6 @@ function mapStateToProps(state) {
 }
 
 function ListRandomizer(props) {
-    const [listItems, setListItems] = useState(initialState('listItems'))
     const [startBtnIcon, setStartBtnIcon] = useState(initialState('startBtnIcon'))
     const [percent, setPercent] = useState(initialState('percent'))
 
@@ -183,9 +182,6 @@ function ListRandomizer(props) {
 
     function initialState(stateName) {
         switch (stateName) {
-            case 'listItems':
-                return []
-
             case 'startBtnIcon':
                 return 'caret-right'
 
@@ -204,10 +200,8 @@ function ListRandomizer(props) {
             const response = res.data
             
             if(response.code === "00200") {
-                // console.log(response.data)
+                console.log(response.data)
                 setPersonsList(response.data)
-
-                setListItems(response.data.data.remain)
 
                 if(connectionIsLost === 1) {
                     reconnect()
@@ -216,7 +210,6 @@ function ListRandomizer(props) {
         })
         .catch((err) => {
             console.log(err)
-            setListItems(initialState('listItems'))
             setConnectionIsLost(1)
         })
 
@@ -307,7 +300,7 @@ function ListRandomizer(props) {
     //     setListItems(swappedItems)
     // }
 
-    function startButtonHandleClick(time) {
+    function startButtonHandleClick(Arraydata) {
         setStartBtnIcon('loading')
         setPercent(initialState('percent'))
 
@@ -317,8 +310,8 @@ function ListRandomizer(props) {
         })
 
         setTimeout(() => {
-            goRandomize()
-        }, time || 500)
+            goRandomize(Arraydata)
+        }, 1500)
     }
 
     function stopProcess() {
@@ -326,9 +319,9 @@ function ListRandomizer(props) {
         setPercent(100)
     }
 
-    function goRandomize() {
-        let listItemsSize = listItems.length // array length
-        let theChosen = listItems[Math.floor(Math.random()*listItemsSize)]
+    function goRandomize(arrayData) {
+        let listItemsSize = arrayData.length // array length
+        let theChosen = arrayData[Math.floor(Math.random()*listItemsSize)]
 
         saveData(theChosen.id)
     }
@@ -343,16 +336,17 @@ function ListRandomizer(props) {
                 <NextAward data={awardsList} setclass={firstCardClass} />
             </MainRow>
             <MainRow>
+                {Object.keys(personsList).length > 0 &&
                 <Col md={12} sm={24}>
                     <CardShield className={secondCardClass}>
                         <Card>
-                            <Label theme={props.theme}>จำนวนกำลังพลของ กพ.ทบ. (ทั้งหมด {personsList.max} นาย)</Label>
+                            <Label theme={props.theme}>จำนวนกำลังพลชั้นสัญญาบัตรของ กพ.ทบ. (ทั้งหมด {personsList.amount.high_max} นาย)</Label>
                             <PersonsRemainNotice>
-                                ยอดคงเหลือที่สามารถถูกสุ่มจับรางวัล: {personsList.remain} นาย
+                                ยอดคงเหลือที่สามารถถูกสุ่มจับรางวัล: {personsList.amount.high_remain} นาย
                             </PersonsRemainNotice>
                             <PersonsAmountBlock theme={props.theme}>
                                 <div>
-                                    {Object.keys(personsList).length > 0 && personsList.data.all.map((person, personIndex) => {
+                                    {Object.keys(personsList).length > 0 && personsList.data.high_max.map((person, personIndex) => {
                                         return (
                                             <p key={personIndex} className={person.is_picked_up > 0 ? "is-picked-up" : ""}>
                                                 {`${personIndex+1}.)`} {person.fullname}
@@ -363,16 +357,52 @@ function ListRandomizer(props) {
                             </PersonsAmountBlock>
                             <Col xs={24}>
                                 <Button
-                                    onClick={() => startButtonHandleClick(1500)}
+                                    onClick={() => startButtonHandleClick(personsList.data.high_remain)}
                                     size='large'
                                     type='primary'
                                     icon={startBtnIcon}
-                                    disabled={Object.keys(personsList).length === 0 || personsList.remain === 0 || awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
+                                    disabled={Object.keys(personsList).length === 0 || personsList.amount.high_remain === 0 || awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
                                 >
                                     สุ่มจับรางวัล
                                 </Button>
                             </Col>
-                            {personsList.remain === 0 &&
+                            {personsList.amount.high_remain === 0 &&
+                            <NoMoreRandomizing theme={props.theme}>
+                                <span>รายชื่อทั้งหมด ถูกจับฉลากแล้ว</span>
+                            </NoMoreRandomizing>
+                            }
+                        </Card>
+                    </CardShield>
+
+                    <CardShield className={secondCardClass}>
+                        <Card>
+                            <Label theme={props.theme}>จำนวนกำลังพลชั้นต่ำกว่าสัญญาบัตรของ กพ.ทบ. (ทั้งหมด {personsList.amount.normal_max} นาย)</Label>
+                            <PersonsRemainNotice>
+                                ยอดคงเหลือที่สามารถถูกสุ่มจับรางวัล: {personsList.amount.normal_remain} นาย
+                            </PersonsRemainNotice>
+                            <PersonsAmountBlock theme={props.theme}>
+                                <div>
+                                    {Object.keys(personsList).length > 0 && personsList.data.normal_max.map((person, personIndex) => {
+                                        return (
+                                            <p key={personIndex} className={person.is_picked_up > 0 ? "is-picked-up" : ""}>
+                                                {`${personIndex+1}.)`} {person.fullname}
+                                            </p>
+                                        )
+                                    })}
+                                </div>
+                            </PersonsAmountBlock>
+                            <Col xs={24}>
+                                <Button
+                                    onClick={() => startButtonHandleClick(personsList.data.normal_remain)}
+                                    size='large'
+                                    type='primary'
+                                    icon={startBtnIcon}
+                                    disabled={Object.keys(personsList).length === 0 || personsList.amount.normal_remain === 0 || awardsList.remain === 0 || startBtnIcon === 'loading' || connectionIsLost === 1}
+                                >
+                                    สุ่มจับรางวัล
+                                </Button>
+                            </Col>
+                            {personsList.amount.normal_remain === 0 &&
                             <NoMoreRandomizing theme={props.theme}>
                                 <span>รายชื่อทั้งหมด ถูกจับฉลากแล้ว</span>
                             </NoMoreRandomizing>
@@ -380,6 +410,7 @@ function ListRandomizer(props) {
                         </Card>
                     </CardShield>
                 </Col>
+                }
                 <AwardsResult
                     data={awardsList}
                     setclass={thirdCardClass}
