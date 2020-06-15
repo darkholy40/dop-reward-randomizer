@@ -4,13 +4,14 @@ import styled from 'styled-components'
 import Slot from './class/Slot'
 
 const height = 72
+const transparentWallSize = 2
 const Block = styled.div`
     position: relative;
-    height: ${height*3}px;
+    height: ${height*((transparentWallSize*2)+1)}px;
 
     .ribbon {
         position: absolute;
-        top: ${height}px;
+        top: ${height*transparentWallSize}px;
         height: ${height}px;
         width: 100%;
         background-color: rgba(0, 255, 0, 0.5);
@@ -19,43 +20,52 @@ const Block = styled.div`
     .transparent-wall-top {
         position: absolute;
         top: 0;
-        height: ${height}px;
+        height: ${height*transparentWallSize}px;
         width: 100%;
-        background-color: rgba(0,0,0,0.6);
+        background-color: rgba(255, 255, 255, 0.5);
+        z-index: 100;
     }
 
     .transparent-wall-bottom {
         position: absolute;
-        top: ${height*2}px;
-        height: ${height}px;
+        top: ${height*(transparentWallSize+1)}px;
+        height: ${height*transparentWallSize}px;
         width: 100%;
-        background-color: rgba(0,0,0,0.6);
+        background-color: rgba(255, 255, 255, 0.5);
+        z-index: 100;
     }
 
     .slot {
         font-size: 2.5rem;
-        height: ${height*3}px;
+        height: ${height*((transparentWallSize*2)+1)}px;
 
         .slot-item {
-            height: ${height}px
+            height: ${height}px;
             display: flex;
             align-items: center;
         }
     }
 `
 
-const randomTimer = [
-    15000,
-    20000,
-    20000,
-    22250,
-    22250,
-    25000,
-    25000,
-    30000
-]
+const random = {
+    duration: [
+        15000,
+        20000,
+        20000,
+        22250,
+        22250,
+        25000,
+        25000,
+        30000
+    ],
+    times: [
+        1,
+        2
+    ]
+}
 
-const duration = randomTimer[Math.floor(Math.random()*randomTimer.length)]
+const duration = random.duration[Math.floor(Math.random()*random.duration.length)]
+const time = random.times[Math.floor(Math.random()*random.times.length)]
 
 function mapStateToProps(state) {
     return state
@@ -69,10 +79,10 @@ function SlotMachine(props) {
             <div className="ribbon" />
             <Slot
                 className="slot"
-                duration={duration}
+                duration={5000}
                 target={props.start ? 50 : 0} // use the 50 index of array
-                times={1} // 1 time loop
-                height={height}
+                times={time} // 1 time loop
+                height={height*(transparentWallSize+1)}
                 onEnd={() => console.log('Complete')}
             >
             {props.data.map((item, index) => (
