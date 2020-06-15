@@ -150,22 +150,20 @@ function SlotMachine(props) {
                 <Slot
                     className="slot"
                     duration={3000}
-                    target={props.start ? 50 : 0} // use the 50 index of array
+                    target={props.start ? 50 : 0} // use index at 50 of array
                     times={1} // 1 time loop
                     height={height*(transparentWallSize+1)}
                     onEnd={() => {
                         setIsFinished(true)
                     }}
                 >
-                    {props.data.map((item, index) => (
-                        <div key={index} className="slot-item">
-                            {item.fullname.split('\n').map((v, i) => (
-                                <div key={i}>
-                                    {v}
-                                </div>
-                            ))}
-                        </div>
-                    ))}
+                    {props.data.map((item, index) => {
+                        return (
+                            <div key={index} className="slot-item">
+                                <div>{item.fullname}</div>
+                            </div>
+                        )
+                    })}
                 </Slot>
             </Block>
         </>
