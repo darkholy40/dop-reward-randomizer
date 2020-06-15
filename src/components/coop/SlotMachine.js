@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import Slot from './class/Slot'
@@ -34,6 +34,37 @@ const Block = styled.div`
         height: ${height}px;
         width: 100%;
         background-color: ${props => props.theme === 'sun' ? 'rgb(165, 214, 167)' : 'rgb(56, 142, 60)'};
+
+        &.finished {
+            animation-duration: 0.5s;
+            animation-name: ${props => props.theme === 'sun' ? 'blink-day' : 'blink-night'};
+            animation-delay: 0;
+            animation-iteration-count: infinite;
+            animation-direction: forward;
+        }
+
+        @keyframes blink-day {
+            0% {
+              background-color: rgb(165, 214, 167);
+            }
+            50% {
+              background-color: rgb(255, 255, 255);
+            }
+            100% {
+              background-color: rgb(165, 214, 167);
+            }
+        }
+        @keyframes blink-night {
+            0% {
+              background-color: rgb(56, 142, 60);
+            }
+            50% {
+              background-color: rgb(75, 75, 75);
+            }
+            100% {
+              background-color: rgb(56, 142, 60);
+            }
+        }
     }
 
     .transparent-wall-top {
@@ -105,6 +136,8 @@ function mapStateToProps(state) {
 }
 
 function SlotMachine(props) {
+    const [isFinished, setIsFinished] = useState(false)
+
     return (
         <>
             {props.title !== undefined &&
@@ -115,24 +148,26 @@ function SlotMachine(props) {
             <Block theme={props.theme}>
                 <div className="transparent-wall-top" />
                 <div className="transparent-wall-bottom" />
-                <div className="ribbon" />
+                <div className={isFinished ? "ribbon finished" : "ribbon"} />
                 <Slot
                     className="slot"
-                    duration={5000}
+                    duration={3000}
                     target={props.start ? 50 : 0} // use the 50 index of array
                     times={1} // 1 time loop
                     height={height*(transparentWallSize+1)}
-                    onEnd={() => console.log('Complete')}
+                    onEnd={() => {
+                        setIsFinished(true)
+                    }}
                 >
-                {props.data.map((item, index) => (
-                    <div key={index} className="slot-item">
-                        {item.fullname.split('\n').map((v, i) => (
-                            <div key={i}>
-                                {v}
-                            </div>
-                        ))}
-                    </div>
-                ))}
+                    {props.data.map((item, index) => (
+                        <div key={index} className="slot-item">
+                            {item.fullname.split('\n').map((v, i) => (
+                                <div key={i}>
+                                    {v}
+                                </div>
+                            ))}
+                        </div>
+                    ))}
                 </Slot>
             </Block>
         </>
