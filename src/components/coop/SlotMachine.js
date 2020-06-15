@@ -5,6 +5,24 @@ import Slot from './class/Slot'
 
 const height = 72
 const transparentWallSize = 2
+const random = {
+    duration: [
+        15000,
+        20000,
+        20000,
+        22250,
+        22250,
+        25000,
+        25000,
+        30000
+    ],
+    times: [
+        1,
+        2
+    ]
+}
+const duration = random.duration[Math.floor(Math.random()*random.duration.length)]
+const time = random.times[Math.floor(Math.random()*random.times.length)]
 
 const Title = styled.div`
     display: flex;
@@ -110,26 +128,6 @@ const Block = styled.div`
         }        
     }
 `
-
-const random = {
-    duration: [
-        15000,
-        20000,
-        20000,
-        22250,
-        22250,
-        25000,
-        25000,
-        30000
-    ],
-    times: [
-        1,
-        2
-    ]
-}
-
-const duration = random.duration[Math.floor(Math.random()*random.duration.length)]
-const time = random.times[Math.floor(Math.random()*random.times.length)]
 
 function mapStateToProps(state) {
     return state
