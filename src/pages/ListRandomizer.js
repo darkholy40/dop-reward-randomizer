@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import {
     Button,
     Col,
+    Modal,
     message,
     notification
 } from 'antd'
@@ -20,6 +21,7 @@ import LoadingModal from '../components/layouts/LoadingModal'
 import NextAward from '../components/coop/NextAward'
 import AwardsResult from '../components/coop/AwardsResult'
 import DataNotFound from '../components/coop/DataNotFound'
+import SlotMachine from '../components/coop/SlotMachine'
 
 const Label = styled.p`
     text-align: left;
@@ -92,6 +94,20 @@ const NoMoreRandomizing = styled.div`
     }
 `
 
+const CustomizedModal = styled(Modal)`
+    max-width: 700px;
+    padding: 0 1rem;
+
+    .ant-modal-content {
+        background-color: ${props => props.theme !== 'sun' && 'rgb(75, 75, 75)'};
+        color: ${props => props.theme !== 'sun' && 'rgb(225, 225, 225)'};
+
+        .ant-modal-body {
+            padding: 8px;
+        }
+    }
+`
+
 function mapStateToProps(state) {
     return state
 }
@@ -113,6 +129,7 @@ function ListRandomizer(props) {
         title: '',
         status: false
     })
+    const [turn, setTurn] = useState(false)
 
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
@@ -196,7 +213,7 @@ function ListRandomizer(props) {
         }
     }
 
-    function getPersonsAndAwardsList() {
+    function fetchData() {
         // ดึกข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
         axios.get(`${props.url}/getpersons`)
         .then(res => {
@@ -239,10 +256,6 @@ function ListRandomizer(props) {
             console.log(err)
             setConnectionIsLost(1)
         })
-    }
-
-    function fetchData() {
-        getPersonsAndAwardsList()
     }
 
     function reconnect() {
@@ -306,26 +319,6 @@ function ListRandomizer(props) {
         })
     }
 
-    // function swapListItems() {
-    //     let listItemsSize = listItems.length // array length
-    //     let characters = []
-    //     let swappedItems = []
-        
-    //     for(let i=0; i<listItemsSize; i++) {
-    //         characters = [...characters, i]
-    //     }
-        
-    //     for(let i=0; i<listItemsSize; i++) {
-    //         let charactersLength = characters.length // array length
-    //         let randomizedIndex = i === 0 ? Math.floor(Math.random() * (charactersLength-1)) + 1 : characters[Math.floor(Math.random()*charactersLength)]
-
-    //         characters = characters.filter(item => randomizedIndex !== item)
-    //         swappedItems = [...swappedItems, listItems[randomizedIndex]]
-    //     }
-
-    //     setListItems(swappedItems)
-    // }
-
     function startButtonHandleClick(Arraydata, option) {
         setStartBtnIcon('loading')
         setPercent(initialState('percent'))
@@ -340,7 +333,9 @@ function ListRandomizer(props) {
                 goRandomize(Arraydata, 'save-bonus-award')
             } else {
                 goRandomize(Arraydata)
-            }            
+            }
+            
+            setTurn(true)
         }, 1500)
     }
 
@@ -353,11 +348,13 @@ function ListRandomizer(props) {
         let listItemsSize = arrayData.length // array length
         let theChosen = arrayData[Math.floor(Math.random()*listItemsSize)]
 
-        if(option === 'save-bonus-award') {
-            saveBonusAward(theChosen.id)
-        } else {
-            saveAward(theChosen.id)
-        }
+        console.log(theChosen)
+
+        // if(option === 'save-bonus-award') {
+        //     saveBonusAward(theChosen.id)
+        // } else {
+        //     saveAward(theChosen.id)
+        // }
     }
 
     function successMessage(str) {
@@ -520,7 +517,23 @@ function ListRandomizer(props) {
                     disqualificationCallBack={disqualification}
                 />
             </MainRow>
-            <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
+            <CustomizedModal
+                centered
+                width="100%"
+                visible={loadingModal.status}
+                footer={null}
+                closable={false}
+                theme={props.theme}
+            >
+                {Object.keys(personsList).length > 0 &&
+                <SlotMachine
+                    title="กำลังสุ่มรายชื่อผู้โชคดี"
+                    data={personsList.data.all_max}
+                    start={turn}
+                />
+                }
+            </CustomizedModal>
+            {/* <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} /> */}
         </MainContainer>
     )
 }
