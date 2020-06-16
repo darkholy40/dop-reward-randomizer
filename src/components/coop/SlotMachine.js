@@ -3,8 +3,6 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 import Slot from './class/Slot'
 
-const height = 72
-const transparentWallSize = 2
 const random = {
     duration: [
         17500,
@@ -41,19 +39,20 @@ const Title = styled.div`
 `
 
 const Block = styled.div`
+    ${props => `
     position: relative;
-    height: ${height*((transparentWallSize*2)+1)}px;
+    height: ${props.slotMachine.height*((props.slotMachine.transparentWallSize*2)+1)}px;
 
     .ribbon {
         position: absolute;
-        top: ${height*transparentWallSize}px;
-        height: ${height}px;
+        top: ${props.slotMachine.height*props.slotMachine.transparentWallSize}px;
+        height: ${props.slotMachine.height}px;
         width: 100%;
-        background-color: ${props => props.theme === 'sun' ? 'rgb(165, 214, 167)' : 'rgb(56, 142, 60)'};
+        background-color: ${props.theme === 'sun' ? 'rgb(165, 214, 167)' : 'rgb(56, 142, 60)'};
 
         &.finished {
             animation-duration: 0.5s;
-            animation-name: ${props => props.theme === 'sun' ? 'blink-day' : 'blink-night'};
+            animation-name: ${props.theme === 'sun' ? 'blink-day' : 'blink-night'};
             animation-delay: 0;
             animation-iteration-count: infinite;
             animation-direction: forward;
@@ -86,27 +85,27 @@ const Block = styled.div`
     .transparent-wall-top {
         position: absolute;
         top: 0;
-        height: ${height*transparentWallSize}px;
+        height: ${props.slotMachine.height*props.slotMachine.transparentWallSize}px;
         width: 100%;
-        background-color: ${props => props.theme === 'sun' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(75, 75, 75, 0.5)'};
+        background-color: ${props.theme === 'sun' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(75, 75, 75, 0.5)'};
         z-index: 100;
     }
 
     .transparent-wall-bottom {
         position: absolute;
-        top: ${height*(transparentWallSize+1)}px;
-        height: ${height*transparentWallSize}px;
+        top: ${props.slotMachine.height*(props.slotMachine.transparentWallSize+1)}px;
+        height: ${props.slotMachine.height*props.slotMachine.transparentWallSize}px;
         width: 100%;
-        background-color: ${props => props.theme === 'sun' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(75, 75, 75, 0.5)'};
+        background-color: ${props.theme === 'sun' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(75, 75, 75, 0.5)'};
         z-index: 100;
     }
 
     .slot {
         font-size: 2.5rem;
-        height: ${height*((transparentWallSize*2)+1)}px;
+        height: ${props.slotMachine.height*((props.slotMachine.transparentWallSize*2)+1)}px;
 
         .slot-item {
-            height: ${height}px;
+            height: ${props.slotMachine.height}px;
             display: flex;
             align-items: center;
 
@@ -130,6 +129,7 @@ const Block = styled.div`
             }
         }        
     }
+    `}
 `
 
 function mapStateToProps(state) {
@@ -146,16 +146,16 @@ function SlotMachine(props) {
                 <p>กำลังสุ่มรายชื่อผู้โชคดี</p>
             </Title>
             }
-            <Block theme={props.theme}>
+            <Block theme={props.theme} slotMachine={props.slotMachine}>
                 <div className="transparent-wall-top" />
                 <div className="transparent-wall-bottom" />
                 <div className={isFinished ? "ribbon finished" : "ribbon"} />
                 <Slot
                     className="slot"
                     duration={duration}
-                    target={props.start ? 50 : 0} // use index at 49 of array
-                    times={time} // 1 time loop
-                    height={height*(transparentWallSize+1)}
+                    target={props.start ? props.slotMachine.selectedRow : 0} // Ex. if selected row to display result is 50th, then use index at 49 of array
+                    times={time} // Ex. 1 time loop
+                    height={props.slotMachine.height*(props.slotMachine.transparentWallSize+1)}
                     onEnd={() => {
                         setIsFinished(true)
                     }}

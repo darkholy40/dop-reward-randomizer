@@ -360,8 +360,8 @@ function ListRandomizer(props) {
     }
 
     function sortResultArrayToDisplay(data, randomizedIndex) {
-        const selectedIndex = 49 // select 50th
-        const transparentWllSize = 2
+        const selectedIndex = props.slotMachine.selectedRow-1 // Ex. if selected row to display result is 50th, then use index at 49 of array
+        const transparentWllSize = props.slotMachine.transparentWallSize
 
         let arrayResult = []
         let selectedIndexCount = selectedIndex
@@ -376,7 +376,7 @@ function ListRandomizer(props) {
                 selectedIndexCount++
                 randomizedIndexCount++
 
-                if(selectedIndexCount > (loopTimes*data.length) - 1) {
+                if(selectedIndexCount > (loopTimes*data.length)-1) {
                     selectedIndexCount = 0
                 }
 

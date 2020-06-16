@@ -23,7 +23,12 @@ const initState = {
     utcMultipliers: multipliers,
     newDate: getUniversalCoordinatedTime(),
     theme: 'sun',
-    url: 'http://localhost:5010'
+    url: 'http://localhost:5010',
+    slotMachine: {
+        height: 72,
+        transparentWallSize: 2,
+        selectedRow: 50
+    }
 }
 
 const reducer = (state = initState, action) => {
