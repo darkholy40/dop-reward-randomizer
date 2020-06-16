@@ -7,13 +7,11 @@ const height = 72
 const transparentWallSize = 2
 const random = {
     duration: [
-        15000,
+        17500,
         20000,
-        20000,
-        22250,
-        22250,
+        22500,
         25000,
-        25000,
+        27500,
         30000
     ],
     times: [
@@ -111,6 +109,13 @@ const Block = styled.div`
             height: ${height}px;
             display: flex;
             align-items: center;
+
+            div {
+                margin-left: 2rem;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
         }
     }
 
@@ -120,9 +125,7 @@ const Block = styled.div`
 
             .slot-item {
                 div {
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    overflow: hidden;
+                    margin-left: 0.5rem;
                 }
             }
         }        
@@ -149,9 +152,9 @@ function SlotMachine(props) {
                 <div className={isFinished ? "ribbon finished" : "ribbon"} />
                 <Slot
                     className="slot"
-                    duration={3000}
-                    target={props.start ? 50 : 0} // use index at 50 of array
-                    times={1} // 1 time loop
+                    duration={duration}
+                    target={props.start ? 50 : 0} // use index at 49 of array
+                    times={time} // 1 time loop
                     height={height*(transparentWallSize+1)}
                     onEnd={() => {
                         setIsFinished(true)

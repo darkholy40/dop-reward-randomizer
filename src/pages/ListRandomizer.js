@@ -130,6 +130,8 @@ function ListRandomizer(props) {
         status: false
     })
     const [turn, setTurn] = useState(false)
+    const [swappedData, setSwappedData] = useState([])
+    const [randomzingModal, setRandomzingModal] = useState(false)
 
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
@@ -324,7 +326,7 @@ function ListRandomizer(props) {
         setPercent(initialState('percent'))
 
         setLoadingModal({
-            title: 'กำลังสุ่มรายชื่อ...',
+            title: 'กำลังเตรียมรายชื่อ...',
             status: true
         })
 
@@ -334,9 +336,7 @@ function ListRandomizer(props) {
             } else {
                 goRandomize(Arraydata)
             }
-            
-            setTurn(true)
-        }, 1500)
+        }, 1000)
     }
 
     function stopProcess() {
@@ -346,8 +346,10 @@ function ListRandomizer(props) {
 
     function goRandomize(arrayData, option) {
         let listItemsSize = arrayData.length // array length
-        let theChosen = arrayData[Math.floor(Math.random()*listItemsSize)]
+        let randomizedIndex = Math.floor(Math.random()*listItemsSize)
+        let theChosen = arrayData[randomizedIndex]
 
+        sortResultArrayToDisplay(arrayData, randomizedIndex)
         console.log(theChosen)
 
         // if(option === 'save-bonus-award') {
@@ -355,6 +357,61 @@ function ListRandomizer(props) {
         // } else {
         //     saveAward(theChosen.id)
         // }
+    }
+
+    function sortResultArrayToDisplay(data, randomizedIndex) {
+        const selectedIndex = 49 // select 50th
+        const transparentWllSize = 2
+
+        let arrayResult = []
+        let selectedIndexCount = selectedIndex
+        let randomizedIndexCount = randomizedIndex
+
+        if(data.length <= (selectedIndex + transparentWllSize)) {
+            const loopTimes = Math.ceil((selectedIndex + transparentWllSize)/data.length)
+
+            for(let i=0; i<(loopTimes*data.length); i++) {
+                arrayResult[selectedIndexCount] = data[randomizedIndexCount]
+
+                selectedIndexCount++
+                randomizedIndexCount++
+
+                if(selectedIndexCount > (loopTimes*data.length) - 1) {
+                    selectedIndexCount = 0
+                }
+
+                if((randomizedIndexCount+1) > data.length) {
+                    randomizedIndexCount = 0
+                }
+            }
+        } else {
+            for(let i=0; i<data.length; i++) {
+                arrayResult[selectedIndexCount] = data[randomizedIndexCount]
+
+                selectedIndexCount++
+                randomizedIndexCount++
+
+                if(selectedIndexCount > data.length-1) {
+                    selectedIndexCount = 0
+                }
+
+                if((randomizedIndexCount+1) > data.length) {
+                    randomizedIndexCount = 0
+                }
+            }
+        }
+
+        // console.log(arrayResult)
+        // console.log(arrayResult.length)
+        setSwappedData(arrayResult)
+        setLoadingModal({
+            ...loadingModal,
+            status: false
+        })
+        setRandomzingModal(true)
+        setTimeout(() => {
+            setTurn(true)
+        }, 250)
     }
 
     function successMessage(str) {
@@ -520,7 +577,7 @@ function ListRandomizer(props) {
             <CustomizedModal
                 centered
                 width="100%"
-                visible={loadingModal.status}
+                visible={randomzingModal}
                 footer={null}
                 closable={false}
                 theme={props.theme}
@@ -528,12 +585,12 @@ function ListRandomizer(props) {
                 {Object.keys(personsList).length > 0 &&
                 <SlotMachine
                     title="กำลังสุ่มรายชื่อผู้โชคดี"
-                    data={personsList.data.all_max}
+                    data={swappedData}
                     start={turn}
                 />
                 }
             </CustomizedModal>
-            {/* <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} /> */}
+            <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
         </MainContainer>
     )
 }
