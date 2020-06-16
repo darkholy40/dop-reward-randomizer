@@ -184,7 +184,7 @@ function AwardsResult(props) {
             </Col>
             :
             <Col md={props.display === "split" ? 12 : 24} sm={24}>
-                <DataNotFound />
+                <DataNotFound setclass={cardClass} />
             </Col>
             }
         </>

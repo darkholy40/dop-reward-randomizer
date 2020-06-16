@@ -230,7 +230,7 @@ function ListRandomizer(props) {
 
     useInterval(() => {
         fetchData()
-    }, 1000)
+    }, props.intervalIsActived ? 1000 : null)
 
     function initialState(stateName) {
         switch (stateName) {
@@ -593,7 +593,7 @@ function ListRandomizer(props) {
                 </Col>
                 :
                 <Col md={12} sm={24}>
-                    <DataNotFound />
+                    <DataNotFound setclass={secondCardClass} />
                 </Col>
                 }
                 <AwardsResult

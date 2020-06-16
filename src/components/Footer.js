@@ -196,7 +196,7 @@ function Footer(props) {
 
     useInterval(() => {
         fetchClock()
-    }, 1000)
+    }, props.intervalIsActived ? 1000 : null)
 
     function fetchClock() {
         props.dispatch({ type: 'FETCH_CLOCK' })

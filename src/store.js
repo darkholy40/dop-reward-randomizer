@@ -30,7 +30,8 @@ const initState = {
         selectedRow: 50,
         hasFinished: false
     },
-    randomzingModal: false
+    randomzingModal: false,
+    intervalIsActived: true
 }
 
 const reducer = (state = initState, action) => {
