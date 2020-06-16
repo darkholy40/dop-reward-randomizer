@@ -23,7 +23,14 @@ const initState = {
     utcMultipliers: multipliers,
     newDate: getUniversalCoordinatedTime(),
     theme: 'sun',
-    url: 'http://164.115.43.132:5010'
+    url: 'http://164.115.43.132:5010',
+    slotMachine: {
+        height: 72,
+        transparentWallSize: 2,
+        selectedRow: 50,
+        hasFinished: false
+    },
+    randomzingModal: false
 }
 
 const reducer = (state = initState, action) => {
@@ -44,6 +51,21 @@ const reducer = (state = initState, action) => {
             return {
                 ...state,
                 theme: action.data
+            }
+
+        case 'SET_SLOT_MACHINE_STATUS':
+            return {
+                ...state,
+                slotMachine: {
+                    ...action.currentState,                    
+                    hasFinished: action.status
+                }
+            }
+
+        case 'SET_RANDOMIZING_MODAL':
+            return {
+                ...state,
+                randomzingModal: action.visible
             }
 
         default:

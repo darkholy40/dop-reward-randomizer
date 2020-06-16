@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import {
     Button,
     Col,
+    Modal,
     message,
     notification
 } from 'antd'
@@ -20,6 +21,7 @@ import LoadingModal from '../components/layouts/LoadingModal'
 import NextAward from '../components/coop/NextAward'
 import AwardsResult from '../components/coop/AwardsResult'
 import DataNotFound from '../components/coop/DataNotFound'
+import SlotMachine from '../components/coop/SlotMachine'
 
 const Label = styled.p`
     text-align: left;
@@ -92,6 +94,20 @@ const NoMoreRandomizing = styled.div`
     }
 `
 
+const CustomizedModal = styled(Modal)`
+    max-width: 700px;
+    padding: 0 1rem;
+
+    .ant-modal-content {
+        background-color: ${props => props.theme !== 'sun' && 'rgb(75, 75, 75)'};
+        color: ${props => props.theme !== 'sun' && 'rgb(225, 225, 225)'};
+
+        .ant-modal-body {
+            padding: 8px;
+        }
+    }
+`
+
 function mapStateToProps(state) {
     return state
 }
@@ -112,6 +128,12 @@ function ListRandomizer(props) {
     const [loadingModal, setLoadingModal] = useState({
         title: '',
         status: false
+    })
+    const [turn, setTurn] = useState(false)
+    const [swappedData, setSwappedData] = useState([])
+    const [dataForSending, setDataForSending] = useState({
+        theChosenId: 0,
+        option: ''
     })
 
     const classNames = {
@@ -179,6 +201,33 @@ function ListRandomizer(props) {
         }
     }, [connectionIsLost])
 
+    useEffect(() => {
+        if(props.slotMachine.hasFinished === true) {
+            if(dataForSending.option === 'save-bonus-award') {
+                saveBonusAward(dataForSending.theChosenId)
+            } else {
+                saveAward(dataForSending.theChosenId)
+            }
+
+            setTimeout(() => {
+                props.dispatch({
+                    type: 'SET_SLOT_MACHINE_STATUS',
+                    currentState: props.slotMachine,
+                    status: false
+                })
+
+                props.dispatch({
+                    type: 'SET_RANDOMIZING_MODAL',
+                    visible: false
+                })
+
+                setTimeout(() => {
+                    setTurn(false)
+                }, 100)
+            }, 2500)
+        }
+    }, [props.slotMachine.hasFinished])
+
     useInterval(() => {
         fetchData()
     }, 1000)
@@ -196,7 +245,7 @@ function ListRandomizer(props) {
         }
     }
 
-    function getPersonsAndAwardsList() {
+    function fetchData() {
         // ดึกข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
         axios.get(`${props.url}/getpersons`)
         .then(res => {
@@ -239,10 +288,6 @@ function ListRandomizer(props) {
             console.log(err)
             setConnectionIsLost(1)
         })
-    }
-
-    function fetchData() {
-        getPersonsAndAwardsList()
     }
 
     function reconnect() {
@@ -306,32 +351,12 @@ function ListRandomizer(props) {
         })
     }
 
-    // function swapListItems() {
-    //     let listItemsSize = listItems.length // array length
-    //     let characters = []
-    //     let swappedItems = []
-        
-    //     for(let i=0; i<listItemsSize; i++) {
-    //         characters = [...characters, i]
-    //     }
-        
-    //     for(let i=0; i<listItemsSize; i++) {
-    //         let charactersLength = characters.length // array length
-    //         let randomizedIndex = i === 0 ? Math.floor(Math.random() * (charactersLength-1)) + 1 : characters[Math.floor(Math.random()*charactersLength)]
-
-    //         characters = characters.filter(item => randomizedIndex !== item)
-    //         swappedItems = [...swappedItems, listItems[randomizedIndex]]
-    //     }
-
-    //     setListItems(swappedItems)
-    // }
-
     function startButtonHandleClick(Arraydata, option) {
         setStartBtnIcon('loading')
         setPercent(initialState('percent'))
 
         setLoadingModal({
-            title: 'กำลังสุ่มรายชื่อ...',
+            title: 'กำลังเตรียมรายชื่อ...',
             status: true
         })
 
@@ -340,8 +365,8 @@ function ListRandomizer(props) {
                 goRandomize(Arraydata, 'save-bonus-award')
             } else {
                 goRandomize(Arraydata)
-            }            
-        }, 1500)
+            }
+        }, 1000)
     }
 
     function stopProcess() {
@@ -351,13 +376,74 @@ function ListRandomizer(props) {
 
     function goRandomize(arrayData, option) {
         let listItemsSize = arrayData.length // array length
-        let theChosen = arrayData[Math.floor(Math.random()*listItemsSize)]
+        let randomizedIndex = Math.floor(Math.random()*listItemsSize)
+        let theChosen = arrayData[randomizedIndex]
 
-        if(option === 'save-bonus-award') {
-            saveBonusAward(theChosen.id)
+        sortResultArrayToDisplay(arrayData, randomizedIndex)
+        console.log(theChosen)
+
+        setDataForSending({
+            theChosenId: theChosen.id,
+            option: option
+        })
+    }
+
+    function sortResultArrayToDisplay(data, randomizedIndex) {
+        const selectedIndex = props.slotMachine.selectedRow-1 // Ex. if selected row to display result is 50th, then use index at 49 of array
+        const transparentWllSize = props.slotMachine.transparentWallSize
+
+        let arrayResult = []
+        let selectedIndexCount = selectedIndex
+        let randomizedIndexCount = randomizedIndex
+
+        if(data.length <= (selectedIndex + transparentWllSize)) {
+            const loopTimes = Math.ceil((selectedIndex + transparentWllSize)/data.length)
+
+            for(let i=0; i<(loopTimes*data.length); i++) {
+                arrayResult[selectedIndexCount] = data[randomizedIndexCount]
+
+                selectedIndexCount++
+                randomizedIndexCount++
+
+                if(selectedIndexCount > (loopTimes*data.length)-1) {
+                    selectedIndexCount = 0
+                }
+
+                if((randomizedIndexCount+1) > data.length) {
+                    randomizedIndexCount = 0
+                }
+            }
         } else {
-            saveAward(theChosen.id)
+            for(let i=0; i<data.length; i++) {
+                arrayResult[selectedIndexCount] = data[randomizedIndexCount]
+
+                selectedIndexCount++
+                randomizedIndexCount++
+
+                if(selectedIndexCount > data.length-1) {
+                    selectedIndexCount = 0
+                }
+
+                if((randomizedIndexCount+1) > data.length) {
+                    randomizedIndexCount = 0
+                }
+            }
         }
+
+        // console.log(arrayResult)
+        // console.log(arrayResult.length)
+        setSwappedData(arrayResult)
+        setLoadingModal({
+            ...loadingModal,
+            status: false
+        })
+        props.dispatch({
+            type: 'SET_RANDOMIZING_MODAL',
+            visible: true
+        })
+        setTimeout(() => {
+            setTurn(true)
+        }, 250)
     }
 
     function successMessage(str) {
@@ -520,6 +606,23 @@ function ListRandomizer(props) {
                     disqualificationCallBack={disqualification}
                 />
             </MainRow>
+            <CustomizedModal
+                centered
+                width="100%"
+                visible={props.randomzingModal}
+                footer={null}
+                closable={false}
+                theme={props.theme}
+            >
+                {props.randomzingModal && // ต้องเคลียร์ elements เดิมออก ไม่งั้นจะ error ในส่วนการ scrolling
+                    Object.keys(personsList).length > 0 &&
+                    <SlotMachine
+                        title="กำลังสุ่มรายชื่อผู้โชคดี"
+                        data={swappedData}
+                        start={turn}
+                    />
+                }
+            </CustomizedModal>
             <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
         </MainContainer>
     )
