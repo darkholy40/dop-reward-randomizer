@@ -131,7 +131,10 @@ function ListRandomizer(props) {
     })
     const [turn, setTurn] = useState(false)
     const [swappedData, setSwappedData] = useState([])
-    const [randomzingModal, setRandomzingModal] = useState(false)
+    const [dataForSending, setDataForSending] = useState({
+        theChosenId: 0,
+        option: ''
+    })
 
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
@@ -197,6 +200,33 @@ function ListRandomizer(props) {
                 break
         }
     }, [connectionIsLost])
+
+    useEffect(() => {
+        if(props.slotMachine.hasFinished === true) {
+            if(dataForSending.option === 'save-bonus-award') {
+                saveBonusAward(dataForSending.theChosenId)
+            } else {
+                saveAward(dataForSending.theChosenId)
+            }
+
+            setTimeout(() => {
+                props.dispatch({
+                    type: 'SET_SLOT_MACHINE_STATUS',
+                    currentState: props.slotMachine,
+                    status: false
+                })
+
+                props.dispatch({
+                    type: 'SET_RANDOMIZING_MODAL',
+                    visible: false
+                })
+
+                setTimeout(() => {
+                    setTurn(false)
+                }, 100)
+            }, 2500)
+        }
+    }, [props.slotMachine.hasFinished])
 
     useInterval(() => {
         fetchData()
@@ -352,11 +382,10 @@ function ListRandomizer(props) {
         sortResultArrayToDisplay(arrayData, randomizedIndex)
         console.log(theChosen)
 
-        // if(option === 'save-bonus-award') {
-        //     saveBonusAward(theChosen.id)
-        // } else {
-        //     saveAward(theChosen.id)
-        // }
+        setDataForSending({
+            theChosenId: theChosen.id,
+            option: option
+        })
     }
 
     function sortResultArrayToDisplay(data, randomizedIndex) {
@@ -408,7 +437,10 @@ function ListRandomizer(props) {
             ...loadingModal,
             status: false
         })
-        setRandomzingModal(true)
+        props.dispatch({
+            type: 'SET_RANDOMIZING_MODAL',
+            visible: true
+        })
         setTimeout(() => {
             setTurn(true)
         }, 250)
@@ -577,17 +609,18 @@ function ListRandomizer(props) {
             <CustomizedModal
                 centered
                 width="100%"
-                visible={randomzingModal}
+                visible={props.randomzingModal}
                 footer={null}
                 closable={false}
                 theme={props.theme}
             >
-                {Object.keys(personsList).length > 0 &&
-                <SlotMachine
-                    title="กำลังสุ่มรายชื่อผู้โชคดี"
-                    data={swappedData}
-                    start={turn}
-                />
+                {props.randomzingModal && // ต้องเคลียร์ elements เดิมออก ไม่งั้นจะ error ในส่วนการ scrolling
+                    Object.keys(personsList).length > 0 &&
+                    <SlotMachine
+                        title="กำลังสุ่มรายชื่อผู้โชคดี"
+                        data={swappedData}
+                        start={turn}
+                    />
                 }
             </CustomizedModal>
             <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />

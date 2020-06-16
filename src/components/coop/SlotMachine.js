@@ -5,16 +5,15 @@ import Slot from './class/Slot'
 
 const random = {
     duration: [
+        15000,
         17500,
         20000,
         22500,
-        25000,
-        27500,
-        30000
+        25000
     ],
     times: [
-        1,
-        2
+        2,
+        3
     ]
 }
 const duration = random.duration[Math.floor(Math.random()*random.duration.length)]
@@ -137,8 +136,6 @@ function mapStateToProps(state) {
 }
 
 function SlotMachine(props) {
-    const [isFinished, setIsFinished] = useState(false)
-
     return (
         <>
             {props.title !== undefined &&
@@ -149,7 +146,7 @@ function SlotMachine(props) {
             <Block theme={props.theme} slotMachine={props.slotMachine}>
                 <div className="transparent-wall-top" />
                 <div className="transparent-wall-bottom" />
-                <div className={isFinished ? "ribbon finished" : "ribbon"} />
+                <div className={props.slotMachine.hasFinished ? "ribbon finished" : "ribbon"} />
                 <Slot
                     className="slot"
                     duration={duration}
@@ -157,7 +154,11 @@ function SlotMachine(props) {
                     times={time} // Ex. 1 time loop
                     height={props.slotMachine.height*(props.slotMachine.transparentWallSize+1)}
                     onEnd={() => {
-                        setIsFinished(true)
+                        props.dispatch({
+                            type: 'SET_SLOT_MACHINE_STATUS',
+                            currentState: props.slotMachine,
+                            status: true
+                        })
                     }}
                 >
                     {props.data.map((item, index) => {
