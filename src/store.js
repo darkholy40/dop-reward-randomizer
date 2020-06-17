@@ -30,6 +30,7 @@ const initState = {
         selectedRow: 50,
         hasFinished: false
     },
+    randomTimes: Math.ceil(Math.random()*3)+2, // random 3 - 5
     randomzingModal: false,
     isRandomizing: false,
     intervalIsActived: true
@@ -63,6 +64,12 @@ const reducer = (state = initState, action) => {
                     ...action.currentState,                    
                     hasFinished: action.status
                 }
+            }
+
+        case 'SET_RANDOM_TIMES':
+            return {
+                ...state,
+                randomTimes: action.times
             }
 
         case 'SET_RANDOMIZING_MODAL':

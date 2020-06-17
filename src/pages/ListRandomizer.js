@@ -11,6 +11,7 @@ import {
 } from 'antd'
 import 'antd/dist/antd.min.css'
 import useInterval from '../components/functions/useInterval'
+import sortResultArrayToDisplay from '../components/functions/sortResultArrayToDisplay'
 
 import MainContainer from '../components/layouts/MainContainer'
 import MainRow from '../components/layouts/MainRow'
@@ -130,7 +131,6 @@ function ListRandomizer(props) {
         status: false
     })
     const [turn, setTurn] = useState(false)
-    const [randomTimes, setRandomTimes] = useState(initialState('randomTimes'))
     const [swappedData, setSwappedData] = useState([])
     const [dataForSending, setDataForSending] = useState({
         theChosenId: 0,
@@ -236,7 +236,10 @@ function ListRandomizer(props) {
 
                 setTimeout(() => {
                     setTurn(false)
-                    setRandomTimes(initialState('randomTimes'))
+                    props.dispatch({
+                        type: 'SET_RANDOM_TIMES',
+                        times: Math.ceil(Math.random()*3)+2
+                    })
                     setSwappedData([])
                 }, 100)
             }, 2500)
@@ -251,9 +254,6 @@ function ListRandomizer(props) {
         switch (stateName) {
             case 'startBtnIcon':
                 return 'caret-right'
-
-            case 'randomTimes':
-                return Math.ceil(Math.random()*3)+2 // random 3 - 5
 
             default:
                 break
@@ -312,7 +312,7 @@ function ListRandomizer(props) {
 
             props.dispatch({
                 type: 'SET_IS_RANDOMIZING',
-                activeStatus: response.data[0].active
+                activeStatus: response.data[0].active === 1 ? true : false
             })
         })
         .catch((err) => {
@@ -344,7 +344,9 @@ function ListRandomizer(props) {
 
             axios.post(`${props.url}/save/status/active`, {
                 activeStatus: 0,
-                randomizedIndex: 0
+                randomizedIndex: 0,
+                fullname: '',
+                rankLevel: ''
             })
             .then(res => {
                 fetchData()
@@ -377,7 +379,9 @@ function ListRandomizer(props) {
 
             axios.post(`${props.url}/save/status/active`, {
                 activeStatus: 0,
-                randomizedIndex: 0
+                randomizedIndex: 0,
+                fullname: '',
+                rankLevel: ''
             })
             .then(res => {
                 fetchData()
@@ -452,12 +456,14 @@ function ListRandomizer(props) {
 
         axios.post(`${props.url}/save/status/active`, {
             activeStatus: 1,
-            randomizedIndex: randomizedIndex
+            randomizedIndex: randomizedIndex,
+            fullname: theChosen.fullname,
+            rankLevel: awardsList.data.awards_remain[0].type
         })
         .then(res => {
             console.log(res.data)
             
-            sortResultArrayToDisplay(arrayData, randomizedIndex)
+            setSwappedData(sortResultArrayToDisplay(arrayData, randomizedIndex, props.slotMachine.selectedRow, props.slotMachine.transparentWallSize, props.randomTimes))
             console.log(theChosen)
     
             setDataForSending({
@@ -476,53 +482,6 @@ function ListRandomizer(props) {
                 duration: 3,
             })
         })
-    }
-
-    function sortResultArrayToDisplay(data, randomizedIndex) {
-        const selectedIndex = (props.slotMachine.selectedRow*randomTimes)-1 // Ex. if selected row to display result is 50th, then use index at 49 of array
-        const transparentWllSize = props.slotMachine.transparentWallSize
-
-        let arrayResult = []
-        let selectedIndexCount = selectedIndex
-        let randomizedIndexCount = randomizedIndex
-
-        if(data.length <= (selectedIndex + transparentWllSize)) {
-            const loopTimes = Math.ceil((selectedIndex + transparentWllSize)/data.length)
-
-            for(let i=0; i<(loopTimes*data.length); i++) {
-                arrayResult[selectedIndexCount] = data[randomizedIndexCount]
-
-                selectedIndexCount++
-                randomizedIndexCount++
-
-                if(selectedIndexCount > (loopTimes*data.length)-1) {
-                    selectedIndexCount = 0
-                }
-
-                if((randomizedIndexCount+1) > data.length) {
-                    randomizedIndexCount = 0
-                }
-            }
-        } else {
-            for(let i=0; i<data.length; i++) {
-                arrayResult[selectedIndexCount] = data[randomizedIndexCount]
-
-                selectedIndexCount++
-                randomizedIndexCount++
-
-                if(selectedIndexCount > data.length-1) {
-                    selectedIndexCount = 0
-                }
-
-                if((randomizedIndexCount+1) > data.length) {
-                    randomizedIndexCount = 0
-                }
-            }
-        }
-
-        // console.log(arrayResult)
-        // console.log(arrayResult.length)
-        setSwappedData(arrayResult)
     }
 
     return (
@@ -696,7 +655,7 @@ function ListRandomizer(props) {
                         title="กำลังสุ่มรายชื่อผู้โชคดี"
                         data={swappedData}
                         start={turn}
-                        loopTimes={randomTimes}
+                        loopTimes={props.randomTimes}
                     />
                 : // ต้องเคลียร์ elements เดิมออก ไม่งั้นจะ error ในส่วนการ scrolling
                     <SlotMachineDummy
