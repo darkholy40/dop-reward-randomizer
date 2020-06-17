@@ -22,6 +22,7 @@ import NextAward from '../components/coop/NextAward'
 import AwardsResult from '../components/coop/AwardsResult'
 import DataNotFound from '../components/coop/DataNotFound'
 import SlotMachine from '../components/coop/SlotMachine'
+import SlotMachineDummy from '../components/coop/SlotMachineDummy'
 
 const Label = styled.p`
     text-align: left;
@@ -94,7 +95,7 @@ const NoMoreRandomizing = styled.div`
     }
 `
 
-const CustomizedModal = styled(Modal)`
+const SlotMachineModal = styled(Modal)`
     max-width: 700px;
     padding: 0 1rem;
 
@@ -134,6 +135,7 @@ function ListRandomizer(props) {
     const [swappedData, setSwappedData] = useState([])
     const [dataForSending, setDataForSending] = useState({
         theChosenId: 0,
+        theChosenName: '',
         option: ''
     })
 
@@ -248,7 +250,7 @@ function ListRandomizer(props) {
                 return 0
 
             case 'randomTimes':
-                return Math.floor(Math.random()*4)+2 // random 2 - 5
+                return Math.ceil(Math.random()*3)+2 // random 3 - 5
 
             default:
                 break
@@ -399,6 +401,7 @@ function ListRandomizer(props) {
 
         setDataForSending({
             theChosenId: theChosen.id,
+            theChosenName: theChosen.fullname,
             option: option
         })
     }
@@ -621,7 +624,7 @@ function ListRandomizer(props) {
                     disqualificationCallBack={disqualification}
                 />
             </MainRow>
-            <CustomizedModal
+            <SlotMachineModal
                 centered
                 width="100%"
                 visible={props.randomzingModal}
@@ -629,7 +632,8 @@ function ListRandomizer(props) {
                 closable={false}
                 theme={props.theme}
             >
-                {props.randomzingModal && // ต้องเคลียร์ elements เดิมออก ไม่งั้นจะ error ในส่วนการ scrolling
+                {props.randomzingModal
+                ?
                     Object.keys(personsList).length > 0 &&
                     <SlotMachine
                         title="กำลังสุ่มรายชื่อผู้โชคดี"
@@ -637,8 +641,14 @@ function ListRandomizer(props) {
                         start={turn}
                         loopTimes={randomTimes}
                     />
+                : // ต้องเคลียร์ elements เดิมออก ไม่งั้นจะ error ในส่วนการ scrolling
+                    <SlotMachineDummy
+                        title="กำลังสุ่มรายชื่อผู้โชคดี"
+                        theChosenName={dataForSending.theChosenName}
+                        theme={props.theme}
+                    />
                 }
-            </CustomizedModal>
+            </SlotMachineModal>
             <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
         </MainContainer>
     )
