@@ -31,7 +31,9 @@ const initState = {
         hasFinished: false
     },
     randomzingModal: false,
+    isRandomizing: false,
     intervalIsActived: true
+    
 }
 
 const reducer = (state = initState, action) => {
@@ -67,6 +69,12 @@ const reducer = (state = initState, action) => {
             return {
                 ...state,
                 randomzingModal: action.visible
+            }
+
+        case 'SET_IS_RANDOMIZING':
+            return {
+                ...state,
+                isRandomizing: action.activeStatus
             }
 
         case 'SET_INTERVAL_STATUS':

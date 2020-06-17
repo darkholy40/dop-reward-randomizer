@@ -115,7 +115,6 @@ function mapStateToProps(state) {
 
 function ListRandomizer(props) {
     const [startBtnIcon, setStartBtnIcon] = useState(initialState('startBtnIcon'))
-    const [percent, setPercent] = useState(initialState('percent'))
 
     const [firstCardClass, setFirstCardClass] = useState('hidden')
     const [secondCardClass, setSecondCardClass] = useState('hidden')
@@ -172,16 +171,6 @@ function ListRandomizer(props) {
     }, [])
 
     useEffect(() => {
-        if(percent === 100) {
-            setLoadingModal({
-                ...loadingModal,
-                status: false
-            })
-            successMessage("สุ่มรายชื่อกำลังพลสำเร็จ")
-        }
-    }, [percent])
-
-    useEffect(() => {
         switch (connectionIsLost) {
             case 1:
                 setLoadingModal({
@@ -203,6 +192,22 @@ function ListRandomizer(props) {
                 break
         }
     }, [connectionIsLost])
+
+    useEffect(() => {
+        if(swappedData.length > 0) {
+            setLoadingModal({
+                ...loadingModal,
+                status: false
+            })
+            props.dispatch({
+                type: 'SET_RANDOMIZING_MODAL',
+                visible: true
+            })
+            setTimeout(() => {
+                setTurn(true)
+            }, 250)
+        }
+    }, [swappedData])
 
     useEffect(() => {
         if(props.slotMachine.hasFinished === true) {
@@ -232,6 +237,7 @@ function ListRandomizer(props) {
                 setTimeout(() => {
                     setTurn(false)
                     setRandomTimes(initialState('randomTimes'))
+                    setSwappedData([])
                 }, 100)
             }, 2500)
         }
@@ -245,9 +251,6 @@ function ListRandomizer(props) {
         switch (stateName) {
             case 'startBtnIcon':
                 return 'caret-right'
-
-            case 'percent':
-                return 0
 
             case 'randomTimes':
                 return Math.ceil(Math.random()*3)+2 // random 3 - 5
@@ -300,6 +303,22 @@ function ListRandomizer(props) {
             console.log(err)
             setConnectionIsLost(1)
         })
+
+        // ดึงสถานะ กำลังสุ่ม
+        axios.get(`${props.url}/get/activestatus`)
+        .then(res => {
+            const response = res.data
+            console.log(response.data[0].active)
+
+            props.dispatch({
+                type: 'SET_IS_RANDOMIZING',
+                activeStatus: response.data[0].active
+            })
+        })
+        .catch((err) => {
+            console.log(err)
+            setConnectionIsLost(1)
+        })
     }
 
     function reconnect() {
@@ -316,17 +335,33 @@ function ListRandomizer(props) {
         // console.log(`the chosen: ${theChosenId}`)
         // console.log(`the current award id: ${currentAwardId}`)
 
-        axios.post(`${props.url}/save/pickedup-person`, {
+        axios.post(`${props.url}/save/award`, {
             awardId: currentAwardId,
             personId: theChosenId
         })
         .then(res => {
             // console.log(res.data)
-            fetchData()
-            stopProcess()
+
+            axios.post(`${props.url}/save/status/active`, {
+                activeStatus: 0,
+                randomizedIndex: 0
+            })
+            .then(res => {
+                fetchData()
+                stopProcess()
+                message.success("สุ่มรายชื่อกำลังพลสำเร็จ")
+            })
+            .catch((err) => {
+                console.log(err)
+            })
         })
         .catch((err) => {
             console.log(err)
+            notification['error']({
+                message: 'แจ้งเตือน',
+                description: 'บันทึกข้อมูลไม่สำเร็จ',
+                duration: 3,
+            })
         })
     }
 
@@ -339,8 +374,19 @@ function ListRandomizer(props) {
         })
         .then(res => {
             // console.log(res.data)
-            fetchData()
-            stopProcess()
+
+            axios.post(`${props.url}/save/status/active`, {
+                activeStatus: 0,
+                randomizedIndex: 0
+            })
+            .then(res => {
+                fetchData()
+                stopProcess()
+                message.success("สุ่มรายชื่อกำลังพลสำเร็จ")
+            })
+            .catch((err) => {
+                console.log(err)
+            })
         })
         .catch((err) => {
             console.log(err)
@@ -356,7 +402,7 @@ function ListRandomizer(props) {
         .then(res => {
             // console.log(res.data)
             fetchData()
-            successMessage("ตัดสิทธิ์กำลังพลสำเร็จ")
+            message.success("ตัดสิทธิ์กำลังพลสำเร็จ")
         })
         .catch((err) => {
             console.log(err)
@@ -365,7 +411,6 @@ function ListRandomizer(props) {
 
     function startButtonHandleClick(Arraydata, option) {
         setStartBtnIcon('loading')
-        setPercent(initialState('percent'))
 
         setLoadingModal({
             title: 'กำลังเตรียมรายชื่อ...',
@@ -388,7 +433,16 @@ function ListRandomizer(props) {
 
     function stopProcess() {
         setStartBtnIcon(initialState('startBtnIcon'))
-        setPercent(100)
+
+        setLoadingModal({
+            ...loadingModal,
+            status: false
+        })
+
+        props.dispatch({
+            type: 'SET_INTERVAL_STATUS',
+            status: true
+        })
     }
 
     function goRandomize(arrayData, option) {
@@ -396,13 +450,31 @@ function ListRandomizer(props) {
         let randomizedIndex = Math.floor(Math.random()*listItemsSize)
         let theChosen = arrayData[randomizedIndex]
 
-        sortResultArrayToDisplay(arrayData, randomizedIndex)
-        console.log(theChosen)
+        axios.post(`${props.url}/save/status/active`, {
+            activeStatus: 1,
+            randomizedIndex: randomizedIndex
+        })
+        .then(res => {
+            console.log(res.data)
+            
+            sortResultArrayToDisplay(arrayData, randomizedIndex)
+            console.log(theChosen)
+    
+            setDataForSending({
+                theChosenId: theChosen.id,
+                theChosenName: theChosen.fullname,
+                option: option
+            })
+        })
+        .catch((err) => {
+            console.log(err)
 
-        setDataForSending({
-            theChosenId: theChosen.id,
-            theChosenName: theChosen.fullname,
-            option: option
+            stopProcess()
+            notification['error']({
+                message: 'แจ้งเตือน',
+                description: 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้',
+                duration: 3,
+            })
         })
     }
 
@@ -451,21 +523,6 @@ function ListRandomizer(props) {
         // console.log(arrayResult)
         // console.log(arrayResult.length)
         setSwappedData(arrayResult)
-        setLoadingModal({
-            ...loadingModal,
-            status: false
-        })
-        props.dispatch({
-            type: 'SET_RANDOMIZING_MODAL',
-            visible: true
-        })
-        setTimeout(() => {
-            setTurn(true)
-        }, 250)
-    }
-
-    function successMessage(str) {
-        message.success(str)
     }
 
     return (
