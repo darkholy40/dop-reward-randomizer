@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import axios from 'axios'
+import styled from 'styled-components'
 import {
+    Modal,
     notification
 } from 'antd'
 import 'antd/dist/antd.min.css'
 import useInterval from '../components/functions/useInterval'
+import sortResultArrayToDisplay from '../components/functions/sortResultArrayToDisplay'
 
 import MainContainer from '../components/layouts/MainContainer'
 import MainRow from '../components/layouts/MainRow'
@@ -13,6 +16,22 @@ import LoadingModal from '../components/layouts/LoadingModal'
 
 import NextAward from '../components/coop/NextAward'
 import AwardsResult from '../components/coop/AwardsResult'
+import SlotMachine from '../components/coop/SlotMachine'
+import SlotMachineDummy from '../components/coop/SlotMachineDummy'
+
+const SlotMachineModal = styled(Modal)`
+    max-width: 700px;
+    padding: 0 1rem;
+
+    .ant-modal-content {
+        background-color: ${props => props.theme !== 'sun' && 'rgb(75, 75, 75)'};
+        color: ${props => props.theme !== 'sun' && 'rgb(225, 225, 225)'};
+
+        .ant-modal-body {
+            padding: 8px;
+        }
+    }
+`
 
 function mapStateToProps(state) {
     return state
@@ -22,12 +41,17 @@ function Home(props) {
     const [firstCardClass, setFirstCardClass] = useState('hidden')
     const [secondCardClass, setSecondCardClass] = useState('hidden')
 
+    const [personsList, setPersonsList] = useState({})
     const [awardsList, setAwardsList] = useState({})
     const [connectionIsLost, setConnectionIsLost] = useState(0)
     const [loadingModal, setLoadingModal] = useState({
         title: '',
         status: false
     })
+
+    const [turn, setTurn] = useState(false)
+    const [swappedData, setSwappedData] = useState([])
+    const [theChosenName, setTheChosenName] = useState('')
 
     const classNames = {
         first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeInDown",
@@ -75,12 +99,123 @@ function Home(props) {
         }
     }, [connectionIsLost])
 
+    useEffect(() => {
+        if(swappedData.length > 0) {
+            setLoadingModal({
+                ...loadingModal,
+                status: false
+            })
+            props.dispatch({
+                type: 'SET_RANDOMIZING_MODAL',
+                visible: true
+            })
+            setTimeout(() => {
+                setTurn(true)
+            }, 250)
+        }
+    }, [swappedData])
+
+    useEffect(() => {
+        if(props.slotMachine.hasFinished === true) {
+            fetchAwardsList()
+            
+            setTimeout(() => {
+                props.dispatch({
+                    type: 'SET_SLOT_MACHINE_STATUS',
+                    currentState: props.slotMachine,
+                    status: false
+                })
+
+                props.dispatch({
+                    type: 'SET_INTERVAL_STATUS',
+                    status: true
+                })
+
+                props.dispatch({
+                    type: 'SET_RANDOMIZING_MODAL',
+                    visible: false
+                })
+
+                setTimeout(() => {
+                    setTurn(false)
+                    props.dispatch({
+                        type: 'SET_RANDOM_TIMES',
+                        times: Math.ceil(Math.random()*3)+2
+                    })
+                    setSwappedData([])
+                }, 100)
+            }, 2500)
+        }
+    }, [props.slotMachine.hasFinished])
+
+    useEffect(() => {
+        if(props.isRandomizing === true) {
+            setLoadingModal({
+                title: 'กำลังเตรียมรายชื่อ...',
+                status: true
+            })
+    
+            props.dispatch({
+                type: 'SET_INTERVAL_STATUS',
+                status: false
+            })
+        }
+    }, [props.isRandomizing])
+
     useInterval(() => {
         fetchData()
-    }, 1000)
+    }, props.intervalIsActived ? 1000 : null)
 
     function fetchData() {
-        // ดึกข้อมูล รายการรางวัลทั้งหมด
+        // ดึกข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
+        axios.get(`${props.url}/getpersons`)
+        .then(res => {
+            const responseOfPersonsList = res.data
+            
+            if(responseOfPersonsList.code === "00200") {
+                // console.log(responseOfPersonsList.data)
+                setPersonsList(responseOfPersonsList.data)
+
+                if(connectionIsLost === 1) {
+                    reconnect()
+                }
+
+                // ดึงสถานะ กำลังสุ่ม
+                axios.get(`${props.url}/get/activestatus`)
+                .then(res => {
+                    const response = res.data
+                    // console.log(response.data[0].active)
+
+                    props.dispatch({
+                        type: 'SET_IS_RANDOMIZING',
+                        activeStatus: response.data[0].active === 1 ? true : false
+                    })
+
+                    if(response.data[0].active === 1) {
+                        setTimeout(() => {
+                            setSwappedData(sortResultArrayToDisplay(responseOfPersonsList.data.data[`${response.data[0].rank_level}_remain`], response.data[0].randomzing_index, props.slotMachine.selectedRow, props.slotMachine.transparentWallSize, props.randomTimes))
+                            setTheChosenName(response.data[0].fullname)
+                        }, 3000)
+                    } else {
+                        setSwappedData([])
+                    }
+                })
+                .catch((err) => {
+                    console.log(err)
+                    setConnectionIsLost(1)
+                })
+            }
+        })
+        .catch((err) => {
+            console.log(err)
+            setConnectionIsLost(1)
+        })
+
+        fetchAwardsList()
+    }
+
+    function fetchAwardsList() {
+        // ดึงข้อมูล รายการรางวัลทั้งหมด
         axios.get(`${props.url}/getawardslist`)
         .then(res => {
             const response = res.data
@@ -116,6 +251,31 @@ function Home(props) {
             <MainRow>
                 <AwardsResult data={awardsList} setclass={secondCardClass} />
             </MainRow>
+            <SlotMachineModal
+                centered
+                width="100%"
+                visible={props.randomzingModal}
+                footer={null}
+                closable={false}
+                theme={props.theme}
+            >
+                {props.randomzingModal
+                ?
+                    Object.keys(personsList).length > 0 &&
+                    <SlotMachine
+                        title="กำลังสุ่มรายชื่อผู้โชคดี"
+                        data={swappedData}
+                        start={turn}
+                        loopTimes={props.randomTimes}
+                    />
+                : // ต้องเคลียร์ elements เดิมออก ไม่งั้นจะ error ในส่วนการ scrolling
+                    <SlotMachineDummy
+                        title="กำลังสุ่มรายชื่อผู้โชคดี"
+                        theChosenName={theChosenName}
+                        theme={props.theme}
+                    />
+                }
+            </SlotMachineModal>
             <LoadingModal title={loadingModal.title} visibility={loadingModal.status} theme={props.theme} />
         </MainContainer>
     )

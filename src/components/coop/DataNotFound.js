@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 
@@ -34,19 +34,8 @@ function mapStateToProps(state) {
 }
 
 function DataNotFound(props) {
-    const [cardClass, setCardClass] = useState('hidden')
-    const classNames = {
-        first: window.innerWidth < 768 ? "animated fadeInUp" : "animated fadeIn"
-    }
-
-    useEffect(() => {
-        setTimeout(() => {
-            setCardClass(classNames.first)
-        }, 150)
-    }, [])
-
     return (
-        <StyledCardShield className={cardClass}>
+        <StyledCardShield className={props.setclass}>
             <StyledCard theme={props.theme}>
                 <StyledText theme={props.theme}>
                     ไม่พบข้อมูลหรือไม่สามารถอ่านข้อมูลจากเซิร์ฟเวอร์ได้
