@@ -130,6 +130,7 @@ function ListRandomizer(props) {
         status: false
     })
     const [turn, setTurn] = useState(false)
+    const [randomTimes, setRandomTimes] = useState(initialState('randomTimes'))
     const [swappedData, setSwappedData] = useState([])
     const [dataForSending, setDataForSending] = useState({
         theChosenId: 0,
@@ -217,12 +218,18 @@ function ListRandomizer(props) {
                 })
 
                 props.dispatch({
+                    type: 'SET_INTERVAL_STATUS',
+                    status: true
+                })
+
+                props.dispatch({
                     type: 'SET_RANDOMIZING_MODAL',
                     visible: false
                 })
 
                 setTimeout(() => {
                     setTurn(false)
+                    setRandomTimes(initialState('randomTimes'))
                 }, 100)
             }, 2500)
         }
@@ -239,6 +246,9 @@ function ListRandomizer(props) {
 
             case 'percent':
                 return 0
+
+            case 'randomTimes':
+                return Math.floor(Math.random()*4)+2 // random 2 - 5
 
             default:
                 break
@@ -360,6 +370,11 @@ function ListRandomizer(props) {
             status: true
         })
 
+        props.dispatch({
+            type: 'SET_INTERVAL_STATUS',
+            status: false
+        })
+
         setTimeout(() => {
             if(option === 'special') {
                 goRandomize(Arraydata, 'save-bonus-award')
@@ -389,7 +404,7 @@ function ListRandomizer(props) {
     }
 
     function sortResultArrayToDisplay(data, randomizedIndex) {
-        const selectedIndex = props.slotMachine.selectedRow-1 // Ex. if selected row to display result is 50th, then use index at 49 of array
+        const selectedIndex = (props.slotMachine.selectedRow*randomTimes)-1 // Ex. if selected row to display result is 50th, then use index at 49 of array
         const transparentWllSize = props.slotMachine.transparentWallSize
 
         let arrayResult = []
@@ -620,6 +635,7 @@ function ListRandomizer(props) {
                         title="กำลังสุ่มรายชื่อผู้โชคดี"
                         data={swappedData}
                         start={turn}
+                        loopTimes={randomTimes}
                     />
                 }
             </CustomizedModal>

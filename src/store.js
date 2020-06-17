@@ -69,6 +69,12 @@ const reducer = (state = initState, action) => {
                 randomzingModal: action.visible
             }
 
+        case 'SET_INTERVAL_STATUS':
+            return {
+                ...state,
+                intervalIsActived: action.status
+            }
+
         default:
             break
     }

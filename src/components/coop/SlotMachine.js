@@ -6,18 +6,12 @@ import Slot from './class/Slot'
 const random = {
     duration: [
         15000,
+        16250,
         17500,
-        20000,
-        22500,
-        25000
-    ],
-    times: [
-        2,
-        3
+        18750,
+        20000
     ]
 }
-const duration = random.duration[Math.floor(Math.random()*random.duration.length)]
-const time = random.times[Math.floor(Math.random()*random.times.length)]
 
 const Title = styled.div`
     display: flex;
@@ -53,7 +47,7 @@ const Block = styled.div`
             animation-duration: 0.5s;
             animation-name: ${props.theme === 'sun' ? 'blink-day' : 'blink-night'};
             animation-delay: 0;
-            animation-iteration-count: infinite;
+            animation-iteration-count: 5;
             animation-direction: forward;
         }
 
@@ -136,11 +130,13 @@ function mapStateToProps(state) {
 }
 
 function SlotMachine(props) {
+    const duration = random.duration[Math.floor(Math.random()*random.duration.length)]
+
     return (
         <>
             {props.title !== undefined &&
             <Title>
-                <p>กำลังสุ่มรายชื่อผู้โชคดี</p>
+                <p>{props.title}</p>
             </Title>
             }
             <Block theme={props.theme} slotMachine={props.slotMachine}>
@@ -150,8 +146,8 @@ function SlotMachine(props) {
                 <Slot
                     className="slot"
                     duration={duration}
-                    target={props.start ? props.slotMachine.selectedRow : 0} // Ex. if selected row to display result is 50th, then use index at 49 of array
-                    times={time} // Ex. 1 time loop
+                    target={props.start ? props.slotMachine.selectedRow*props.loopTimes : 0} // Ex. if selected row to display result is 50th, then use index at 49 of array
+                    // times={1} // ไม่ใช้ props จำนวนครั้ง ของ Slot -> เนื่องจาก ไม่ smooth
                     height={props.slotMachine.height*(props.slotMachine.transparentWallSize+1)}
                     onEnd={() => {
                         props.dispatch({
