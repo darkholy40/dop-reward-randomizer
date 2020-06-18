@@ -261,7 +261,7 @@ function ListRandomizer(props) {
     }
 
     function fetchData() {
-        // ดึกข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
+        // ดึงข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
         axios.get(`${props.url}/getpersons`)
         .then(res => {
             const response = res.data
@@ -280,7 +280,7 @@ function ListRandomizer(props) {
             setConnectionIsLost(1)
         })
 
-        // ดึกข้อมูล รายการรางวัลทั้งหมด
+        // ดึงข้อมูล รายการรางวัลทั้งหมด
         axios.get(`${props.url}/getawardslist`)
         .then(res => {
             const response = res.data

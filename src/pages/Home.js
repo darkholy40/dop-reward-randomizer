@@ -167,7 +167,7 @@ function Home(props) {
     }, props.intervalIsActived ? 1000 : null)
 
     function fetchData() {
-        // ดึกข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
+        // ดึงข้อมูล รายชื่อกำลังพลใน กพ.ทบ. ทั้งหมด
         axios.get(`${props.url}/getpersons`)
         .then(res => {
             const responseOfPersonsList = res.data
