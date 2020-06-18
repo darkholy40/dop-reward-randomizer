@@ -539,7 +539,7 @@ function ListRandomizer(props) {
 
                     <CardShield className={currentAwardType === 'normal' ? secondCardClass : 'disappeared'}>
                         <Card>
-                            <Label theme={props.theme}>จับรางวัลกำลังพลชั้นต่ำกว่าสัญญาบัตร</Label>
+                            <Label theme={props.theme}>จับรางวัลกำลังพลชั้นประทวนและพนักงานราชการ</Label>
                             <PersonsRemainNotice>
                                 ทั้งหมด: {personsList.amount.normal_max} นาย<br />
                                 คงเหลือ: {personsList.amount.normal_remain} นาย

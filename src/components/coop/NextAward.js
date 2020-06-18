@@ -81,7 +81,7 @@ function NextAward(props) {
                 return 'ชั้นสัญญาบัตร'
 
             case 'normal':
-                return 'ชั้นต่ำกว่าสัญญาบัตร'
+                return 'ชั้นประทวนและพนักงานราชการ'
 
             case 'all':
                 return 'รางวัลใหญ่'
